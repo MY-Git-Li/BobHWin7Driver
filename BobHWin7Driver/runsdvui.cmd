@@ -1,0 +1,2 @@
+cd /d "C:\Users\Adminis\Desktop\BobHWinDriver-master\BobHWin7Driver" &msbuild "BobHWin7Driver.vcxproj" /t:sdvViewer /p:configuration="Debug" /p:platform="ARM" /p:SolutionDir="C:\Users\Adminis\Desktop\BobHWinDriver-master" 
+exit %errorlevel% 
