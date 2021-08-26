@@ -1,9 +1,10 @@
 ﻿// Test.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
-
-#include <iostream>
 #include "stdlib.h"
 #include "windows.h"
+#include <locale.h>
+#include <iostream>
+using namespace std;
 
 #define BOBH_SET CTL_CODE(FILE_DEVICE_UNKNOWN,0x810,METHOD_BUFFERED,FILE_ANY_ACCESS)
 #define BOBH_READ CTL_CODE(FILE_DEVICE_UNKNOWN,0x811,METHOD_BUFFERED,FILE_ANY_ACCESS)
@@ -30,9 +31,54 @@ typedef struct _MyCHAR
 {
 	CHAR _char[100];
 }MYCHAR, * PMyCHAR;
+
+
+
+string ws2s(const wstring& ws)
+{
+	string curLocale = setlocale(LC_ALL, NULL);     //curLocale="C"
+	setlocale(LC_ALL, "chs");
+	const wchar_t* wcs = ws.c_str();
+	size_t dByteNum = sizeof(wchar_t) * ws.size() + 1;
+	cout << "ws.size():" << ws.size() << endl;      //5：宽字符串L"ABC我们"有5个自然字符
+
+	char* dest = new char[dByteNum];
+	wcstombs_s(NULL, dest, dByteNum, wcs, _TRUNCATE);
+	string result = dest;
+	delete[] dest;
+	setlocale(LC_ALL, curLocale.c_str());
+	return result;
+}
+
+wstring s2ws(const string& s)
+{
+	string curLocale = setlocale(LC_ALL, NULL);  //curLocale="C"
+	setlocale(LC_ALL, "chs");
+	const char* source = s.c_str();
+	size_t charNum = s.size() + 1;
+	cout << "s.size():" << s.size() << endl;         //7：多字节字符串"ABC我们"有7个字节
+
+	wchar_t* dest = new wchar_t[charNum];
+	mbstowcs_s(NULL, dest, charNum, source, _TRUNCATE);
+	wstring result = dest;
+	delete[] dest;
+	setlocale(LC_ALL, curLocale.c_str());
+	return result;
+}
+
+
+
+
+
+
+
+
+
+
+
 int main()
 {
-
+	
 
 	/*WCHAR wcha[] = L"USER32.DLL";*/
 
@@ -53,12 +99,12 @@ int main()
 
 		DWORD Pid, Count;
 
-		printf("请输入PID\n");
+		printf("请输入设置读写的PID\n");
 		scanf_s("%d", &Pid);
-		printf("你输入的的PID为：%d\n", Pid);
+		printf("你输入的PID为：%d\n", Pid);
 		system("pause");
 
-		printf("开始设置PID\n");
+		printf("开始设置读写的PID\n");
 		DeviceIoControl(hdevice, BOBH_SET, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
 		printf("设置PID成功\n");
 		system("pause");
@@ -75,17 +121,13 @@ int main()
 
 		printf("开始读内存\n");
 
-
-		printf("读之前的appBuffer.Address = %x\n", appBuffer.Address);
-		printf("读之前的appBuffer.Buffer = %d\n", appBuffer.Buffer);
-		printf("读之前的appBuffer.size = %d\n", appBuffer.size);
 		system("pause");
 
 		DeviceIoControl(hdevice, BOBH_READ, &appBuffer, sizeof(appBuffer), &appBuffer, sizeof(appBuffer), &Count, NULL);
 
-		printf("读之后的appBuffer.Address = %x\n", appBuffer.Address);
-		printf("读之后的appBuffer.Buffer = %d\n", appBuffer.Buffer);
-		printf("读之后的appBuffer.size = %d\n", appBuffer.size);
+		
+		printf("读到的数据为 = %d\n", appBuffer.Buffer);
+		
 
 		system("pause");
 
@@ -95,9 +137,6 @@ int main()
 
 		appBuffer.size = sizeof(appBuffer);
 
-		printf("写之前的appBuffer.Address = %x\n", appBuffer.Address);
-		printf("写之前的appBuffer.Buffer = %d\n", appBuffer.Buffer);
-		printf("写之前的appBuffer.size = %d\n", appBuffer.size);
 		system("pause");
 
 		DeviceIoControl(hdevice, BOBH_WRITE, &appBuffer, sizeof(appBuffer), &appBuffer, sizeof(appBuffer), &Count, NULL);
@@ -126,38 +165,64 @@ int main()
 	
 
 	/*DeviceIoControl(hdevice, BOBH_UNPROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);*/
-	/*{
+	//{
 
-		UModuleBase iostruct = { 0 };
+	//	UModuleBase iostruct = { 0 };
 
-		ULONG Pid = 0;
+	//	ULONG Pid = 0;
 
-		printf("输入目标进程PID\n");
+	//	printf("输入目标进程PID\n");
 
-		scanf_s("%d", &Pid);
+	//	scanf_s("%d", &Pid);
 
-		iostruct.Pid = Pid;
-		RtlCopyMemory(iostruct.ModuleName, L"USER32.DLL", wcslen(L"USER32.DLL") * 2);
+	//	iostruct.Pid = Pid;
 
-		DWORD Count = 0;
-		ULONG64 dllbase = 0;
-		DeviceIoControl(hdevice, BOBH_GETMODULEADDRESS, &iostruct, sizeof(iostruct), &dllbase, sizeof(dllbase), &Count, NULL);
-		printf("Dll base %x\n", dllbase);
+	//	printf("输入目标进程Dll模块名称\n");
 
+
+	//	string a;
+	//	cin >> a;
+	//	wstring b = s2ws(a);
+
+	//	/*cout << "普通字符串为" << &b[0] << endl;
+
+	//	cout <<"普通字符串为" << a << endl;
+
+	//	wcout << L"宽字符为" << b << endl;*/
+
+	//	system("pause");
+	//	//这里的宽字符太傻逼了
+	//	//KERNELBASE.DLL
+
+	//	RtlCopyMemory(iostruct.ModuleName, b.c_str(), b.size()*2);
+
+	//	DWORD Count = 0;
+	//	ULONG64 dllbase = 0;
+	//	DeviceIoControl(hdevice, BOBH_GETMODULEADDRESS, &iostruct, sizeof(iostruct), &dllbase, sizeof(dllbase), &Count, NULL);
+	//	printf("Dll base %llx\n", dllbase);
+
+	//	system("pause");
+	//}
+
+	{
+		MYCHAR mychar = { 0 };
+		printf("开始枚举进程\n");
+		DWORD ret = 0, dwrite = 0;
+		char a[] = "";
+		printf("请输入进程名称\n");
+		scanf_s("%s", a);
+		printf("你输入的是%s", a);
 		system("pause");
-	}*/
-	MYCHAR mychar = { 0 };
-	printf("开始枚举进程\n");
-	DWORD ret=0,dwrite=0;
-	char a[] = "calc.exe";
-	RtlCopyMemory(mychar._char, a, strlen(a));
+		RtlCopyMemory(mychar._char, a, strlen(a));
+
+		DeviceIoControl(hdevice, BOBH_GETPROCESSID, &mychar, sizeof(mychar), &ret, sizeof(ret), &dwrite, NULL);
+
+		printf("枚举进程完毕\n");
+
+		printf("得到%s进程的Pid为%d\n", mychar._char, ret);
+		system("pause");
+	}
 	
-	DeviceIoControl(hdevice, BOBH_GETPROCESSID, &mychar, sizeof(mychar), &ret, sizeof(ret), &dwrite, NULL);
-
-	printf("枚举进程完毕\n");
-
-	printf("得到%s进程的Pid为%d\n", mychar._char,ret);
-	system("pause");
 	CloseHandle(hdevice);
 	return 0;
 }

@@ -89,13 +89,13 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 		}
 
 		UNICODE_STRING moudlename = { 0 };
-		ULONG64 outdllbase = 0;
+		ULONGLONG outdllbase = 0;
 		RtlInitUnicodeString(&moudlename, TempBase->ModuleName);
 		KdPrint(("ÒªÑ°ÕÒµÄmoudlenameÎª%wZ \r\n", moudlename));
 
 		outdllbase = KeGetMoudleAddress(TempBase->Pid, &moudlename);
 
-		*(PULONG64)buffer = outdllbase;
+		*(PULONGLONG)buffer = outdllbase;
 
 		status = STATUS_SUCCESS;
 		break;
@@ -423,11 +423,11 @@ ULONGLONG KeGetMoudleAddress(_In_ ULONG pid, _In_ PUNICODE_STRING name)
 	ULONGLONG ModuleBase = 0;
 	NTSTATUS status = STATUS_SUCCESS;
 	KAPC_STATE kapc_state = { 0 };
-	ULONG64  dllbaseaddr = 0;
+	ULONGLONG  dllbaseaddr = 0;
 	status = PsLookupProcessByProcessId((HANDLE)pid, &p);
 	if (!NT_SUCCESS(status))
 	{
-		KdPrint(("Ñ°ÕÒÊ§°Ü"));
+		KdPrint(("Î´ÕÒµ½½ø³Ì£¬Ñ°ÕÒÊ§°Ü"));
 		return 0;
 	}
 	KeStackAttachProcess(p, &kapc_state);
@@ -513,6 +513,9 @@ ULONGLONG KeGetMoudleAddress(_In_ ULONG pid, _In_ PUNICODE_STRING name)
 		
 			__try
 			{
+				/*KdPrint(("pPebLdrData %llx", pPebLdrData));
+				KdPrint(("plistEntryStart %llx", plistEntryStart));*/
+
 
 				do
 				{
@@ -520,9 +523,10 @@ ULONGLONG KeGetMoudleAddress(_In_ ULONG pid, _In_ PUNICODE_STRING name)
 
 					if (RtlCompareUnicodeString(&pLdrDataEntry->BaseDllName, name, TRUE) == 0)
 					{
-						dllbaseaddr = (ULONG64)pLdrDataEntry->DllBase;
+						dllbaseaddr = (ULONGLONG)(pLdrDataEntry->DllBase);
 						KdPrint(("ÕÒµ½ÁË£¡"));
-						KdPrint(("DllBase %x", dllbaseaddr));
+						/*KdPrint(("pLdrDataEntry %llx", (ULONGLONG)(pLdrDataEntry->DllBase)));*/
+						KdPrint(("DllBase %llx", dllbaseaddr));
 						break;
 					}
 					/*KdPrint(("pLdrDataEntry  0x%x", pLdrDataEntry));*/
