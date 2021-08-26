@@ -213,7 +213,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 	//ProtectProcessStart(3100);
 	// 
 	//Òþ²ØÇý¶¯Ð¶ÔØÀ¶ÆÁ,Å¼¶ûÀ¶ÆÁ
-		HideDriver(DriverObject);
+		//HideDriver(DriverObject);
 	////Òþ²ØÇý¶¯ Ð¶ÔØÀ¶ÆÁ,´ý½â¾ö.
 	/*IoRegisterDriverReinitialization(DriverObject, Reinitialize, NULL);*/
 	
