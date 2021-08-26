@@ -33,5 +33,11 @@
     <ClInclude Include="Hide.c">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="GET_MIPROCESSLOADERENTRY.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SYSTEM_MODULE_STRUCT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
