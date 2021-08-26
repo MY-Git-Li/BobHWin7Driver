@@ -174,7 +174,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 	// 
 	//Òþ²ØÇý¶¯Ð¶ÔØÀ¶ÆÁ,Å¼¶ûÀ¶ÆÁ
 	//HideDriver(DriverObject);
-	//Òþ²ØÇý¶¯Ð¶ÔØÀ¶ÆÁ
+	//Òþ²ØÇý¶¯Ð¶ÔØ¿¨ËÀ
 	//IoRegisterDriverReinitialization(DriverObject, Reinitialize, NULL);
 	
 	
