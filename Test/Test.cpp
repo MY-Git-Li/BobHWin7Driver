@@ -12,101 +12,152 @@
 #define BOBH_UNPROTECT CTL_CODE(FILE_DEVICE_UNKNOWN,0x814,METHOD_BUFFERED,FILE_ANY_ACCESS)
 #define BOBH_KILLPROCESS_DIRECT CTL_CODE(FILE_DEVICE_UNKNOWN,0x815,METHOD_BUFFERED,FILE_ANY_ACCESS)
 #define BOBH_KILLPROCESS_MEMORY CTL_CODE(FILE_DEVICE_UNKNOWN,0x816,METHOD_BUFFERED,FILE_ANY_ACCESS)
+#define BOBH_GETMODULEADDRESS CTL_CODE(FILE_DEVICE_UNKNOWN,0x817,METHOD_BUFFERED,FILE_ANY_ACCESS)
+#define BOBH_GETPROCESSID CTL_CODE(FILE_DEVICE_UNKNOWN,0x818,METHOD_BUFFERED,FILE_ANY_ACCESS)
+
+typedef struct ModuleBase
+{
+	ULONG Pid;
+	WCHAR ModuleName[100];
+}UModuleBase, * LPModuleBase;
 
 struct r3Buffer {
 	ULONG64 Address;
 	ULONG64 Buffer;
 	ULONG64 size;
 }appBuffer;
-
+typedef struct _MyCHAR
+{
+	CHAR _char[100];
+}MYCHAR, * PMyCHAR;
 int main()
 {
+
+
+	/*WCHAR wcha[] = L"USER32.DLL";*/
+
 	HANDLE hdevice = NULL;
 
 
 	hdevice = CreateFile(L"\\\\.\\BobHWin7ReadLink", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,NULL);
-
-	if (hdevice == INVALID_HANDLE_VALUE)
-	{
-		printf("打开失败\n");
+	
+	/*{
+		if (hdevice == INVALID_HANDLE_VALUE)
+		{
+			printf("打开失败\n");
+			system("pause");
+			return 0;
+		}
+		printf("打开成功\n");
 		system("pause");
-		return 0;
-	}
-	printf("打开成功\n");
-	system("pause");
 
-	DWORD Pid, Count;
+		DWORD Pid, Count;
+
+		printf("请输入PID\n");
+		scanf_s("%d", &Pid);
+		printf("你输入的的PID为：%d\n", Pid);
+		system("pause");
+
+		printf("开始设置PID\n");
+		DeviceIoControl(hdevice, BOBH_SET, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+		printf("设置PID成功\n");
+		system("pause");
+
+		DWORD bianliang = 520;
+		printf("写之前变量的地址为%x,变量的值为%d\n", &bianliang, bianliang);
+
+
+		system("pause");
+
+		appBuffer.Address = (ULONG64)&bianliang;
+		appBuffer.Buffer = { 0 };
+		appBuffer.size = sizeof(appBuffer);
+
+		printf("开始读内存\n");
+
+
+		printf("读之前的appBuffer.Address = %x\n", appBuffer.Address);
+		printf("读之前的appBuffer.Buffer = %d\n", appBuffer.Buffer);
+		printf("读之前的appBuffer.size = %d\n", appBuffer.size);
+		system("pause");
+
+		DeviceIoControl(hdevice, BOBH_READ, &appBuffer, sizeof(appBuffer), &appBuffer, sizeof(appBuffer), &Count, NULL);
+
+		printf("读之后的appBuffer.Address = %x\n", appBuffer.Address);
+		printf("读之后的appBuffer.Buffer = %d\n", appBuffer.Buffer);
+		printf("读之后的appBuffer.size = %d\n", appBuffer.size);
+
+		system("pause");
+
+		printf("开始写内存\n");
+		printf("请输入写的多少\n");
+		scanf_s("%d", &appBuffer.Buffer);
+
+		appBuffer.size = sizeof(appBuffer);
+
+		printf("写之前的appBuffer.Address = %x\n", appBuffer.Address);
+		printf("写之前的appBuffer.Buffer = %d\n", appBuffer.Buffer);
+		printf("写之前的appBuffer.size = %d\n", appBuffer.size);
+		system("pause");
+
+		DeviceIoControl(hdevice, BOBH_WRITE, &appBuffer, sizeof(appBuffer), &appBuffer, sizeof(appBuffer), &Count, NULL);
+
+		printf("写之后变量的地址为%x,变量的值为%d\n", &bianliang, bianliang);
+		system("pause");
+
+
+		printf("开始保护进程\n");
+
+		printf("请输入要保护的PID\n");
+		scanf_s("%d", &Pid);
+		printf("你输入的的PID为：%d\n", Pid);
+		system("pause");
+
+		DeviceIoControl(hdevice, BOBH_PROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+		printf("保护进程完成\n");
+		system("pause");
+
+		printf("关闭保护进程\n");
+		DeviceIoControl(hdevice, BOBH_UNPROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+		printf("关闭进程完成\n");
+		system("pause");
+	}*/
 	
-	printf("请输入PID\n");
-	scanf_s("%d", &Pid);
-	printf("你输入的的PID为：%d\n",Pid);
-	system("pause");
-
-	printf("开始设置PID\n");
-	DeviceIoControl(hdevice, BOBH_SET, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
-	printf("设置PID成功\n");
-	system("pause");
-
-	DWORD bianliang = 520;
-	printf("写之前变量的地址为%x,变量的值为%d\n",&bianliang,bianliang);
-
 	
+
+	/*DeviceIoControl(hdevice, BOBH_UNPROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);*/
+	/*{
+
+		UModuleBase iostruct = { 0 };
+
+		ULONG Pid = 0;
+
+		printf("输入目标进程PID\n");
+
+		scanf_s("%d", &Pid);
+
+		iostruct.Pid = Pid;
+		RtlCopyMemory(iostruct.ModuleName, L"USER32.DLL", wcslen(L"USER32.DLL") * 2);
+
+		DWORD Count = 0;
+		ULONG64 dllbase = 0;
+		DeviceIoControl(hdevice, BOBH_GETMODULEADDRESS, &iostruct, sizeof(iostruct), &dllbase, sizeof(dllbase), &Count, NULL);
+		printf("Dll base %x\n", dllbase);
+
+		system("pause");
+	}*/
+	MYCHAR mychar = { 0 };
+	printf("开始枚举进程\n");
+	DWORD ret=0,dwrite=0;
+	char a[] = "calc.exe";
+	RtlCopyMemory(mychar._char, a, strlen(a));
+	
+	DeviceIoControl(hdevice, BOBH_GETPROCESSID, &mychar, sizeof(mychar), &ret, sizeof(ret), &dwrite, NULL);
+
+	printf("枚举进程完毕\n");
+
+	printf("得到%s进程的Pid为%d\n", mychar._char,ret);
 	system("pause");
-
-	appBuffer.Address = (ULONG64)&bianliang;
-	appBuffer.Buffer = { 0 };
-	appBuffer.size = sizeof(appBuffer);
-
-	printf("开始读内存\n");
-
-
-	printf("读之前的appBuffer.Address = %x\n", appBuffer.Address);
-	printf("读之前的appBuffer.Buffer = %d\n", appBuffer.Buffer);
-	printf("读之前的appBuffer.size = %d\n", appBuffer.size);
-	system("pause");
-
-	DeviceIoControl(hdevice, BOBH_READ, &appBuffer, sizeof(appBuffer), &appBuffer, sizeof(appBuffer), &Count, NULL);
-
-	printf("读之后的appBuffer.Address = %x\n", appBuffer.Address);
-	printf("读之后的appBuffer.Buffer = %d\n", appBuffer.Buffer);
-	printf("读之后的appBuffer.size = %d\n", appBuffer.size);
-
-	system("pause");
-
-	printf("开始写内存\n");
-	printf("请输入写的多少\n");
-	scanf_s("%d", &appBuffer.Buffer);
-
-	appBuffer.size = sizeof(appBuffer);
-
-	printf("写之前的appBuffer.Address = %x\n", appBuffer.Address);
-	printf("写之前的appBuffer.Buffer = %d\n", appBuffer.Buffer);
-	printf("写之前的appBuffer.size = %d\n", appBuffer.size);
-	system("pause");
-
-	DeviceIoControl(hdevice, BOBH_WRITE, &appBuffer, sizeof(appBuffer), &appBuffer, sizeof(appBuffer), &Count, NULL);
-
-	printf("写之后变量的地址为%x,变量的值为%d\n", &bianliang, bianliang);
-	system("pause");
-
-
-	printf("开始保护进程\n");
-
-	printf("请输入要保护的PID\n");
-	scanf_s("%d", &Pid);
-	printf("你输入的的PID为：%d\n", Pid);
-	system("pause");
-
-	DeviceIoControl(hdevice, BOBH_PROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
-	printf("保护进程完成\n");
-	system("pause");
-
-	printf("关闭保护进程\n");
-	DeviceIoControl(hdevice, BOBH_UNPROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
-	printf("关闭进程完成\n");
-	system("pause");
-
-
 	CloseHandle(hdevice);
 	return 0;
 }

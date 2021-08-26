@@ -1,60 +1,224 @@
-#include "ntifs.h"
-#include "ntddk.h"
-#include <windef.h>
+#include "Driverdef.h"
+#include "DeiverDefFun.h"
+#include "Hide.c"
+#define DELAY_ONE_MICROSECOND 	(-10)
+#define DELAY_ONE_MILLISECOND	(DELAY_ONE_MICROSECOND*1000)
 
-#define BOBH_SET CTL_CODE(FILE_DEVICE_UNKNOWN,0x810,METHOD_BUFFERED,FILE_ANY_ACCESS)
-#define BOBH_READ CTL_CODE(FILE_DEVICE_UNKNOWN,0x811,METHOD_BUFFERED,FILE_ANY_ACCESS)
-#define BOBH_WRITE CTL_CODE(FILE_DEVICE_UNKNOWN,0x812,METHOD_BUFFERED,FILE_ANY_ACCESS)
-#define BOBH_PROTECT CTL_CODE(FILE_DEVICE_UNKNOWN,0x813,METHOD_BUFFERED,FILE_ANY_ACCESS)
-#define BOBH_UNPROTECT CTL_CODE(FILE_DEVICE_UNKNOWN,0x814,METHOD_BUFFERED,FILE_ANY_ACCESS)
-#define BOBH_KILLPROCESS_DIRECT CTL_CODE(FILE_DEVICE_UNKNOWN,0x815,METHOD_BUFFERED,FILE_ANY_ACCESS)
-#define BOBH_KILLPROCESS_MEMORY CTL_CODE(FILE_DEVICE_UNKNOWN,0x816,METHOD_BUFFERED,FILE_ANY_ACCESS)
-
-#define PROCESS_TERMINATE         0x0001  
-#define PROCESS_VM_OPERATION      0x0008  
-#define PROCESS_VM_READ           0x0010  
-#define PROCESS_VM_WRITE          0x0020 
-
-UNICODE_STRING myDeviceName = RTL_CONSTANT_STRING(L"\\Device\\BobHWin7Read");//设备名称
-UNICODE_STRING symLinkName = RTL_CONSTANT_STRING(L"\\??\\BobHWin7ReadLink");//设备符号链接
-PDEVICE_OBJECT DeviceObject = NULL;
-
-PEPROCESS Process = NULL;
-
-DWORD protectPID = -1;
-PVOID g_pRegiHandle = NULL;
-BOOLEAN isProtecting = FALSE;
-struct r3Buffer {
-	ULONG64 Address;
-	ULONG64 Buffer;
-	ULONG64 size;
-}appBuffer;
-
-typedef struct _LDR_DATA_TABLE_ENTRY
+VOID KernelSleep(LONG msec)
 {
-	LIST_ENTRY    InLoadOrderLinks;
-	LIST_ENTRY    InMemoryOrderLinks;
-	LIST_ENTRY    InInitializationOrderLinks;
-	PVOID            DllBase;
-	PVOID            EntryPoint;
-	ULONG            SizeOfImage;
-	UNICODE_STRING    FullDllName;
-	UNICODE_STRING     BaseDllName;
-	ULONG            Flags;
-	USHORT            LoadCount;
-	USHORT            TlsIndex;
-	PVOID            SectionPointer;
-	ULONG            CheckSum;
-	PVOID            LoadedImports;
-	PVOID            EntryPointActivationContext;
-	PVOID            PatchInformation;
-	LIST_ENTRY    ForwarderLinks;
-	LIST_ENTRY    ServiceTagLinks;
-	LIST_ENTRY    StaticLinks;
-	PVOID            ContextInformation;
-	ULONG            OriginalBase;
-	LARGE_INTEGER    LoadTime;
-} LDR_DATA_TABLE_ENTRY, *PLDR_DATA_TABLE_ENTRY;
+	LARGE_INTEGER my_interval;
+	my_interval.QuadPart = DELAY_ONE_MILLISECOND;
+	my_interval.QuadPart *= msec;
+	KeDelayExecutionThread(KernelMode, 0, &my_interval);
+}
+
+VOID
+DelObject(
+	_In_ PVOID StartContext
+)
+{
+	PULONG_PTR pZero = NULL;
+	KernelSleep(5000);
+	ObMakeTemporaryObject(DeviceObject);
+	DPRINT("test seh.\n");
+	__try {
+		*pZero = 0x100;
+	}
+	__except (1)
+	{
+		DPRINT("seh success.\n");
+	}
+}
+
+VOID Reinitialize(
+	_In_     PDRIVER_OBJECT        pDriverObject,
+	_In_opt_ PVOID                 Context,
+	_In_     ULONG                 Count
+)
+{
+	HANDLE hThread = NULL;
+	PsCreateSystemThread(&hThread, THREAD_ALL_ACCESS, NULL, NULL, NULL, DelObject, NULL);
+	if (*NtBuildNumber < 8000)
+		HideDriverWin7(pDriverObject);
+	else
+		HideDriverWin10(pDriverObject);
+}
+
+NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
+	NTSTATUS status = STATUS_INVALID_DEVICE_REQUEST;
+	PIO_STACK_LOCATION irpsp = IoGetCurrentIrpStackLocation(Irp);//取得IRP 对象
+	PVOID buffer = Irp->AssociatedIrp.SystemBuffer;//获给的缓存区
+	ULONG CTLcode = irpsp->Parameters.DeviceIoControl.IoControlCode;//得到自定义的控制码
+	ULONG uInSize = irpsp->Parameters.DeviceIoControl.InputBufferLength;//输入的长度
+	ULONG uOutSize = irpsp->Parameters.DeviceIoControl.OutputBufferLength;//输出的长度
+	PVOID tmpbuffer = NULL;
+	switch (CTLcode)
+	{
+	case BOBH_READ:
+		memcpy(&appBuffer, buffer, uInSize);
+		KdPrint(("读收到的地址是:%x \r\n", appBuffer.Address));
+		tmpbuffer = ExAllocatePool(NonPagedPool, appBuffer.size + 1);
+		RtlFillMemory(tmpbuffer, appBuffer.size + 1, 0);
+		/*KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));*/
+		KeReadProcessMemory(appBuffer.Address, tmpbuffer, appBuffer.size);
+		/*KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));*/
+		memcpy(&appBuffer.Buffer, tmpbuffer, sizeof(tmpbuffer));
+		memcpy(buffer, &appBuffer, uInSize);
+		ExFreePool(tmpbuffer);
+		status = STATUS_SUCCESS;
+		break;
+	case BOBH_WRITE:
+		memcpy(&appBuffer, buffer, uInSize);
+		KdPrint(("写收到的地址是:%x \r\n", appBuffer.Address));
+
+		tmpbuffer = ExAllocatePool(NonPagedPool, appBuffer.size + 1);
+		RtlFillMemory(tmpbuffer, appBuffer.size + 1, 0);
+		KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));
+
+		memcpy(tmpbuffer, &appBuffer.Buffer, appBuffer.size);
+		KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));
+
+		KeWriteProcessMemory(appBuffer.Address, tmpbuffer, appBuffer.size);
+
+		ExFreePool(tmpbuffer);
+		status = STATUS_SUCCESS;
+
+		break;
+	case BOBH_SET:
+	{
+		DWORD PID;
+		memcpy(&PID, buffer, uInSize);
+		SetPID(PID);
+		status = STATUS_SUCCESS;
+		break;
+	}
+	case BOBH_PROTECT:
+	{
+		DWORD PID;
+		memcpy(&PID, buffer, uInSize);
+		ProtectProcessStart(PID);
+		status = STATUS_SUCCESS;
+		break;
+	}
+	case BOBH_UNPROTECT:
+	{
+		ProtectProcessStop();
+		status = STATUS_SUCCESS;
+		break;
+	}
+	case BOBH_KILLPROCESS_DIRECT:
+	{
+		DWORD PID;
+		memcpy(&PID, buffer, uInSize);
+		KeKillProcessSimple(PID);
+		status = STATUS_SUCCESS;
+		break;
+	}
+	case BOBH_KILLPROCESS_MEMORY:
+	{
+		DWORD PID;
+		memcpy(&PID, buffer, uInSize);
+		KeKillProcessZeroMemory(PID);
+		status = STATUS_SUCCESS;
+		break;
+	}
+	case BOBH_GETMODULEADDRESS:
+	{
+		LPModuleBase TempBase = (LPModuleBase)buffer;
+		if (TempBase->Pid <= 0)
+		{
+			status = STATUS_UNSUCCESSFUL;
+			break;
+		}
+
+		UNICODE_STRING moudlename = { 0 };
+		ULONG64 outdllbase = 0;
+		RtlInitUnicodeString(&moudlename, TempBase->ModuleName);
+		KdPrint(("要寻找的moudlename为%wZ \r\n", moudlename));
+
+		outdllbase = KeGetMoudleAddress(TempBase->Pid, &moudlename);
+
+		*(PULONG64)buffer = outdllbase;
+
+		status = STATUS_SUCCESS;
+		break;
+	}
+	case BOBH_GETPROCESSID:
+	{
+
+
+		PMYCHAR a = (PMYCHAR)buffer;
+
+		STRING process = { 0 };
+
+
+		RtlInitString(&process, a->_char);
+		KdPrint(("process %s \r\n", process));
+
+
+		DWORD pid = 0;
+		pid = EnumProcess(process);
+		*(PDWORD)buffer = pid;
+
+		if (pid > 0)
+		{
+			status = STATUS_SUCCESS;
+		}
+		else
+		{
+			status = STATUS_UNSUCCESSFUL;
+		}
+		break;
+	}
+	default:
+		status = STATUS_INVALID_PARAMETER;
+		break;
+	}
+	Irp->IoStatus.Information = uOutSize;
+	Irp->IoStatus.Status = status;
+	IoCompleteRequest(Irp, IO_NO_INCREMENT);
+	return status;
+}
+
+NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) {
+	NTSTATUS status;
+	int i;
+	//设置驱动卸载事件
+	DriverObject->DriverUnload = Unload;
+	//创建设备对象
+	status = IoCreateDevice(DriverObject, 0, &myDeviceName, FILE_DEVICE_UNKNOWN, FILE_DEVICE_SECURE_OPEN, FALSE, &DeviceObject);
+	if (!NT_SUCCESS(status)) {
+		KdPrint(("[BobHWin7]创建设备对象失败 \r\n"));
+		return status;
+	}
+	//创建符号链接
+	status = IoCreateSymbolicLink(&symLinkName, &myDeviceName);
+	if (!NT_SUCCESS(status)) {
+		KdPrint(("[BobHWin7]创建符号链接失败 \r\n"));
+		IoDeleteDevice(DeviceObject);
+		return status;
+	}
+	for (i = 0; i < IRP_MJ_MAXIMUM_FUNCTION; i++) {
+		DriverObject->MajorFunction[i] = DispatchPassThru;
+	}
+	//为读写专门指定处理函数
+	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DispatchDevCTL;
+	//监控进程对象
+	KdPrint(("[BobHWin7]成功载入驱动，开始LDR \r\n"));
+	PLDR_DATA_TABLE_ENTRY ldr;
+	ldr = (PLDR_DATA_TABLE_ENTRY)DriverObject->DriverSection;
+	ldr->Flags |= 0x20;
+	KdPrint(("[BobHWin7]LDR修改成功 \r\n"));
+	//ProtectProcessStart(1234);
+	//ProtectProcessStart(3100);
+	// 
+	//隐藏驱动卸载蓝屏,偶尔蓝屏
+		HideDriver(DriverObject);
+	////隐藏驱动 卸载蓝屏,待解决.
+	/*IoRegisterDriverReinitialization(DriverObject, Reinitialize, NULL);*/
+	
+	return status;
+}
 
 VOID Unload(PDRIVER_OBJECT DriverObject) {
 	if (isProtecting) {
@@ -64,6 +228,49 @@ VOID Unload(PDRIVER_OBJECT DriverObject) {
 	IoDeleteDevice(DeviceObject);
 	KdPrint(("[BobHWin7]成功卸载驱动 \r\n"));
 }
+
+
+
+// 根据进程ID返回进程EPROCESS结构体,失败返回NULL
+PEPROCESS LookupProcess(HANDLE Pid)
+{
+	PEPROCESS eprocess = NULL;
+	NTSTATUS Status = STATUS_UNSUCCESSFUL;
+	Status = PsLookupProcessByProcessId(Pid, &eprocess);
+	if (NT_SUCCESS(Status))
+		return eprocess;
+	return NULL;
+}
+
+DWORD EnumProcess(STRING processName)
+{
+	PEPROCESS eproc = NULL;
+
+	DWORD ret = 0;
+
+	for (int temp = 0; temp < 100000; temp += 4)
+	{
+		eproc = LookupProcess((HANDLE)temp);
+		if (eproc != NULL)
+		{
+			STRING nowProcessnameString = { 0 };
+			RtlInitString(&nowProcessnameString, PsGetProcessImageFileName(eproc));
+			
+			if (RtlCompareString(&nowProcessnameString, &processName,FALSE)==0)
+			{
+				ret = PsGetProcessId(eproc);
+				break;
+			}
+
+			DbgPrint("进程名: %s --> 进程PID = %d --> 父进程PPID = %d\r\n", PsGetProcessImageFileName(eproc), PsGetProcessId(eproc),
+				PsGetProcessInheritedFromUniqueProcessId(eproc));
+			ObDereferenceObject(eproc);
+		}
+	}
+	return ret;
+}
+
+
 VOID KeReadProcessMemory(ULONG64 add, PVOID buffer, SIZE_T size){
 	KAPC_STATE apc_state;
 	KeStackAttachProcess(Process, &apc_state);
@@ -249,124 +456,173 @@ VOID ProtectProcessStop() {
 		isProtecting = FALSE;
 	}
 }
-NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
-	NTSTATUS status = STATUS_INVALID_DEVICE_REQUEST;
-	PIO_STACK_LOCATION irpsp = IoGetCurrentIrpStackLocation(Irp);//取得IRP 对象
-	PVOID buffer = Irp->AssociatedIrp.SystemBuffer;//获给的缓存区
-	ULONG CTLcode = irpsp->Parameters.DeviceIoControl.IoControlCode;//得到自定义的控制码
-	ULONG uInSize = irpsp->Parameters.DeviceIoControl.InputBufferLength;//输入的长度
-	ULONG uOutSize = irpsp->Parameters.DeviceIoControl.OutputBufferLength;//输出的长度
-	PVOID tmpbuffer = NULL;
-	switch (CTLcode)
+
+ULONGLONG KeGetMoudleAddress(_In_ ULONG pid, _In_ PUNICODE_STRING name)
+{
+	PEPROCESS p = NULL;
+	ULONGLONG ModuleBase = 0;
+	NTSTATUS status = STATUS_SUCCESS;
+	KAPC_STATE kapc_state = { 0 };
+	ULONG64  dllbaseaddr = 0;
+	status = PsLookupProcessByProcessId((HANDLE)pid, &p);
+	if (!NT_SUCCESS(status))
 	{
-	case BOBH_READ:
-		memcpy(&appBuffer,buffer,uInSize);
-		KdPrint(("读收到的地址是:%x \r\n",appBuffer.Address));
-		tmpbuffer = ExAllocatePool(NonPagedPool, appBuffer.size+1);
-		RtlFillMemory(tmpbuffer, appBuffer.size + 1, 0);
-		/*KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));*/
-		KeReadProcessMemory(appBuffer.Address, tmpbuffer, appBuffer.size);
-		/*KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));*/
-		memcpy(&appBuffer.Buffer,tmpbuffer, sizeof(tmpbuffer));
-		memcpy(buffer, &appBuffer, uInSize);
-		ExFreePool(tmpbuffer);
-		status = STATUS_SUCCESS;
-		break;
-	case BOBH_WRITE:
-		memcpy(&appBuffer, buffer, uInSize);
-		KdPrint(("写收到的地址是:%x \r\n", appBuffer.Address));
+		KdPrint(("寻找失败"));
+		return 0;
+	}
+	KeStackAttachProcess(p, &kapc_state);
+
+	
+	PPEB32 peb32 = NULL;
+
+	peb32 = (PPEB32)PsGetProcessWow64Process(p);
+
+	if (peb32 != NULL)
+	{
 		
-		tmpbuffer = ExAllocatePool(NonPagedPool, appBuffer.size + 1);
-		RtlFillMemory(tmpbuffer, appBuffer.size + 1, 0);
-		KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));
-
-		memcpy(tmpbuffer, &appBuffer.Buffer, appBuffer.size);
-		KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));
-
-		KeWriteProcessMemory(appBuffer.Address,tmpbuffer,appBuffer.size);
-
-		ExFreePool(tmpbuffer);
-		status = STATUS_SUCCESS;
+		KdPrint(("wow64进程"));
 		
-		break;
-	case BOBH_SET: 
+		PPEB_LDR_DATA32 pPebLdrData32 = NULL;
+		PLDR_DATA_TABLE_ENTRY32 pLdrDataEntry32 = NULL; //LDR链表入口;
+		PLIST_ENTRY32 pListEntryStart32 = NULL; //链表头节点、尾节点;
+		PLIST_ENTRY32 pListEntryEnd32 = NULL;
+		__try
+		{
+			
+			pPebLdrData32 = (PPEB_LDR_DATA32)peb32->Ldr;
+		/*	KdPrint(("pPebLdrData32 %x", pPebLdrData32));*/
+
+			pListEntryStart32 = pListEntryEnd32 = pPebLdrData32->InLoadOrderModuleList.Flink;
+			/*KdPrint(("pListEntryStart32 %x", pListEntryStart32));*/
+			do {//输出DLL全路径;
+
+				
+				pLdrDataEntry32 = (PLDR_DATA_TABLE_ENTRY32)CONTAINING_RECORD(pListEntryStart32, LDR_DATA_TABLE_ENTRY32, InMemoryOrderLinks);
+				
+				/*KdPrint(("pLdrDataEntry32 %x", pLdrDataEntry32));*/
+
+				WCHAR* a = (DWORD)pLdrDataEntry32->BaseDllName;
+				
+				/*KdPrint(("BaseDllName %x", pLdrDataEntry32->BaseDllName));*/
+
+				UNICODE_STRING nowMoudlename = { 0 };
+				RtlInitUnicodeString(&nowMoudlename, a);
+
+				if (RtlCompareUnicodeString(&nowMoudlename, name, TRUE) == 0 ) {
+
+					dllbaseaddr = pLdrDataEntry32->DllBase;
+
+					KdPrint(("找到了！"));
+					KdPrint(("DllBase %x", dllbaseaddr));
+					break;
+				}
+
+				pListEntryStart32 = (PLIST_ENTRY32)pListEntryStart32->Flink;
+			} while (pListEntryStart32 != pListEntryEnd32);
+
+		}
+		__except (1)
+		{
+			KdPrint(("内存访问异常"));
+			
+			dllbaseaddr = 0;
+		}
+	}
+	else
 	{
-		DWORD PID;
-		memcpy(&PID,buffer,uInSize);
-		SetPID(PID);
-		status = STATUS_SUCCESS;
-		break;
+		PPEB peb = NULL;
+		peb = (PPEB)PsGetProcessPeb(p);
+		if (peb == NULL)
+		{
+			ObDereferenceObject(p);
+			KdPrint(("寻找失败"));
+			KeUnstackDetachProcess(&kapc_state);
+			return 0;
+		}
+		else
+		{
+			KdPrint(("非wow64进程"));
+
+			PPEB_LDR_DATA pPebLdrData = (PPEB_LDR_DATA)peb->Ldr;
+
+			PLIST_ENTRY plistEntryStart = NULL, plistEntryEnd = NULL;
+
+			PLDR_DATA_TABLE_ENTRY pLdrDataEntry = NULL;
+
+			plistEntryStart = plistEntryEnd = pPebLdrData->InMemoryOrderModuleList.Blink;
+		
+			__try
+			{
+
+				do
+				{
+					pLdrDataEntry = (PLDR_DATA_TABLE_ENTRY)CONTAINING_RECORD(plistEntryStart, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+
+					if (RtlCompareUnicodeString(&pLdrDataEntry->BaseDllName, name, TRUE) == 0)
+					{
+						dllbaseaddr = (ULONG64)pLdrDataEntry->DllBase;
+						KdPrint(("找到了！"));
+						KdPrint(("DllBase %x", dllbaseaddr));
+						break;
+					}
+					/*KdPrint(("pLdrDataEntry  0x%x", pLdrDataEntry));*/
+
+					plistEntryStart = plistEntryStart->Blink;
+
+				} while (plistEntryStart != plistEntryEnd);
+			}
+			__except (1)
+			{
+				KdPrint(("内存访问异常"));
+				dllbaseaddr = 0;
+			}
+		}
 	}
-	case BOBH_PROTECT: 
-	{
-		DWORD PID;
-		memcpy(&PID, buffer, uInSize);
-		ProtectProcessStart(PID);
-		status = STATUS_SUCCESS;
-		break;
-	}
-	case BOBH_UNPROTECT:
-	{
-		ProtectProcessStop();
-		status = STATUS_SUCCESS;
-		break;
-	}
-	case BOBH_KILLPROCESS_DIRECT:
-	{
-		DWORD PID;
-		memcpy(&PID, buffer, uInSize);
-		KeKillProcessSimple(PID);
-		status = STATUS_SUCCESS;
-		break;
-	}
-	case BOBH_KILLPROCESS_MEMORY:
-	{
-		DWORD PID;
-		memcpy(&PID, buffer, uInSize);
-		KeKillProcessZeroMemory(PID);
-		status = STATUS_SUCCESS;
-		break;
-	}
-	default:
-		status = STATUS_INVALID_PARAMETER;
-		break;
-	}
-	Irp->IoStatus.Information = uOutSize;
-	Irp->IoStatus.Status = status;
-	IoCompleteRequest(Irp, IO_NO_INCREMENT);
-	return status;
+
+	ObDereferenceObject(p);
+	KeUnstackDetachProcess(&kapc_state);
+	return dllbaseaddr;
 }
-NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) {
-	NTSTATUS status;
-	int i;
-	//设置驱动卸载事件
-	DriverObject->DriverUnload = Unload;
-	//创建设备对象
-	status = IoCreateDevice(DriverObject, 0, &myDeviceName, FILE_DEVICE_UNKNOWN, FILE_DEVICE_SECURE_OPEN, FALSE, &DeviceObject);
-	if (!NT_SUCCESS(status)) {
-		KdPrint(("[BobHWin7]创建设备对象失败 \r\n"));
-		return status;
-	}
-	//创建符号链接
-	status = IoCreateSymbolicLink(&symLinkName, &myDeviceName);
-	if (!NT_SUCCESS(status)) {
-		KdPrint(("[BobHWin7]创建符号链接失败 \r\n"));
-		IoDeleteDevice(DeviceObject);
-		return status;
-	}
-	for (i = 0; i < IRP_MJ_MAXIMUM_FUNCTION; i++) {
-		DriverObject->MajorFunction[i] = DispatchPassThru;
-	}
-	//为读写专门指定处理函数
-	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DispatchDevCTL;
-	//监控进程对象
-	KdPrint(("[BobHWin7]成功载入驱动，开始LDR \r\n"));
-	PLDR_DATA_TABLE_ENTRY ldr;
-	ldr = (PLDR_DATA_TABLE_ENTRY)DriverObject->DriverSection;
-	ldr->Flags |= 0x20;
-	KdPrint(("[BobHWin7]LDR修改成功 \r\n"));
-	//ProtectProcessStart(1234);
-	//ProtectProcessStart(3100);
 
-	return status;
+//
+//关闭内存写保护的代码
+//
+KIRQL WPOFFx64()
+{
+	KIRQL irql = KeRaiseIrqlToDpcLevel();
+	UINT64 cr0 = __readcr0();
+	cr0 &= 0xfffffffffffeffff;
+	__writecr0(cr0);
+	_disable();
+	return irql;
+}
+
+//
+//打开内存写保护的代码
+//
+void WPONx64(
+	KIRQL irql)
+{
+	UINT64 cr0 = __readcr0();
+	cr0 |= 0x10000;
+	_enable();
+	__writecr0(cr0);
+	KeLowerIrql(irql);
+}
+//
+//test hide driver
+//
+BOOLEAN HideDriver(
+	_In_ PDRIVER_OBJECT pDrvObj)
+{
+	if (pDrvObj->DriverSection != NULL)
+	{
+		PLIST_ENTRY nextSection = ((PLIST_ENTRY)pDrvObj->DriverSection)->Blink;
+		RemoveEntryList((PLIST_ENTRY)pDrvObj->DriverSection);
+		pDrvObj->DriverSection = nextSection;
+		DbgPrint("隐藏驱动成功");
+		return TRUE;
+	}
+	DbgPrint("隐藏驱动失败");
+	return FALSE;
 }

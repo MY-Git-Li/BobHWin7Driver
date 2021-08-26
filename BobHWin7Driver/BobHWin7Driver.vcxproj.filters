@@ -23,4 +23,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Driverdef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeiverDefFun.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hide.c">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
