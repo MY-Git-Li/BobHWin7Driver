@@ -31,8 +31,3 @@ KIRQL WPOFFx64();
 //
 void WPONx64(
 	KIRQL irql);
-//
-//test hide driver
-//
-BOOLEAN HideDriver(
-	_In_ PDRIVER_OBJECT pDrvObj);

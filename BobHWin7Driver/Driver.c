@@ -1,8 +1,5 @@
 #include "Driverdef.h"
 #include "DeiverDefFun.h"
-#include "Hide.c"
-#define DELAY_ONE_MICROSECOND 	(-10)
-#define DELAY_ONE_MILLISECOND	(DELAY_ONE_MICROSECOND*1000)
 
 NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	NTSTATUS status = STATUS_INVALID_DEVICE_REQUEST;
@@ -176,7 +173,9 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 	//HideDriver(DriverObject);
 	//Òþ²ØÇý¶¯Ð¶ÔØ¿¨ËÀ
 	//IoRegisterDriverReinitialization(DriverObject, Reinitialize, NULL);
-	
+	/*HANDLE hThread;
+	PsCreateSystemThread(&hThread, 0, NULL, NULL, NULL, HideDriver, (PVOID)DriverObject);
+	ZwClose(hThread);*/
 	
 	return status;
 }
@@ -569,21 +568,4 @@ void WPONx64(
 	_enable();
 	__writecr0(cr0);
 	KeLowerIrql(irql);
-}
-//
-//test hide driver
-//
-BOOLEAN HideDriver(
-	_In_ PDRIVER_OBJECT pDrvObj)
-{
-	if (pDrvObj->DriverSection != NULL)
-	{
-		PLIST_ENTRY nextSection = ((PLIST_ENTRY)pDrvObj->DriverSection)->Blink;
-		RemoveEntryList((PLIST_ENTRY)pDrvObj->DriverSection);
-		pDrvObj->DriverSection = nextSection;
-		DbgPrint("Òþ²ØÇý¶¯³É¹¦");
-		return TRUE;
-	}
-	DbgPrint("Òþ²ØÇý¶¯Ê§°Ü");
-	return FALSE;
 }

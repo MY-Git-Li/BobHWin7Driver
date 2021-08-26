@@ -163,9 +163,7 @@
   <ItemGroup>
     <ClInclude Include="DeiverDefFun.h" />
     <ClInclude Include="Driverdef.h" />
-    <ClInclude Include="GET_MIPROCESSLOADERENTRY.h" />
-    <ClInclude Include="Hide.c" />
-    <ClInclude Include="SYSTEM_MODULE_STRUCT.h" />
+    <ClInclude Include="WindowsStructure.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
