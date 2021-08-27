@@ -45,38 +45,45 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	{
 		DWORD PID;
 		RtlCopyMemory(&PID, buffer, uInSize);
-		SetPID(PID);
-		status = STATUS_SUCCESS;
+		status = SetPID(PID);
+		/*status = STATUS_SUCCESS;*/
 		break;
 	}
 	case BOBH_PROTECT:
 	{
 		DWORD PID;
 		RtlCopyMemory(&PID, buffer, uInSize);
-		ProtectProcessStart(PID);
-		status = STATUS_SUCCESS;
+		status = ProtectProcessStart(PID);
+	/*	status = STATUS_SUCCESS;*/
 		break;
 	}
 	case BOBH_UNPROTECT:
 	{
-		ProtectProcessStop();
-		status = STATUS_SUCCESS;
+		status = ProtectProcessStop();
+	/*	status = STATUS_SUCCESS;*/
 		break;
 	}
 	case BOBH_KILLPROCESS_DIRECT:
 	{
 		DWORD PID;
 		RtlCopyMemory(&PID, buffer, uInSize);
-		KeKillProcessSimple(PID);
-		status = STATUS_SUCCESS;
+		status =	KeKillProcessSimple(PID);
+		/*status = STATUS_SUCCESS;*/
 		break;
 	}
 	case BOBH_KILLPROCESS_MEMORY:
 	{
 		DWORD PID;
 		RtlCopyMemory(&PID, buffer, uInSize);
-		KeKillProcessZeroMemory(PID);
-		status = STATUS_SUCCESS;
+		if (KeKillProcessZeroMemory(PID))
+		{
+			status = STATUS_SUCCESS;
+		}
+		else
+		{
+			status = STATUS_UNSUCCESSFUL;
+		}
+		
 		break;
 	}
 	case BOBH_GETMODULEADDRESS:
@@ -280,13 +287,14 @@ VOID KeWriteProcessMemory(ULONG64 add, PVOID buffer, SIZE_T size) {
 	}
 	KeUnstackDetachProcess(&apc_state);
 }
-VOID SetPID(DWORD pid) {
+NTSTATUS SetPID(DWORD pid) {
 	NTSTATUS status = PsLookupProcessByProcessId((HANDLE)pid, &Process);
 	if (!NT_SUCCESS(status)) {
 		KdPrint(("[BobHWin7]设置PID失败 \r\n"));
-		return;
+		return status;
 	}
 	KdPrint(("[BobHWin7]设置PID: %d 成功 \r\n",pid));
+	return status;
 }
 NTSTATUS DispatchPassThru(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	//得到irp堆栈地址
@@ -298,7 +306,8 @@ NTSTATUS DispatchPassThru(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	IoCompleteRequest(Irp, IO_NO_INCREMENT);
 	return status;
 }
-VOID KeKillProcessSimple(DWORD pid) {
+NTSTATUS KeKillProcessSimple(DWORD pid) {
+	NTSTATUS ntStatus = STATUS_SUCCESS;
 	__try {
 		HANDLE hProcess = NULL;
 		CLIENT_ID ClientId = { 0 };
@@ -318,11 +327,14 @@ VOID KeKillProcessSimple(DWORD pid) {
 			ZwClose(hProcess);
 		}
 		KdPrint(("[BobHWin7] 杀进程成功"));
+		ntStatus = STATUS_SUCCESS;
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		KdPrint(("[BobHWin7] 普通方法杀进程失败"));
+		ntStatus = STATUS_UNSUCCESSFUL;
 	}
+	return ntStatus;
 }
 BOOLEAN KeKillProcessZeroMemory(DWORD pid) {
 	NTSTATUS ntStatus = STATUS_SUCCESS;
@@ -399,7 +411,7 @@ OB_PREOP_CALLBACK_STATUS MyObjectPreCallback
 }
 
 
-VOID ProtectProcessStart(DWORD pid) {
+NTSTATUS ProtectProcessStart(DWORD pid) {
 	if (isProtecting) {
 		return;
 	}
@@ -421,17 +433,21 @@ VOID ProtectProcessStart(DWORD pid) {
 	if (NT_SUCCESS(status)) {
 		KdPrint(("[BobHWin7]注册obj回调成功 \r\n"));
 		isProtecting = TRUE;
+		return status;
 	}
 	else {
 		KdPrint(("[BobHWin7]注册obj回调失败 %x\r\n",status));
 		isProtecting = FALSE;
+		return status;
 	}
 }
-VOID ProtectProcessStop() {
+NTSTATUS ProtectProcessStop() {
+	NTSTATUS status = STATUS_SUCCESS;
 	if (isProtecting) {
 		ObUnRegisterCallbacks(g_pRegiHandle);
 		isProtecting = FALSE;
 	}
+	return status;
 }
 
 ULONGLONG KeGetMoudleAddress(_In_ ULONG pid, _In_ PUNICODE_STRING name)
