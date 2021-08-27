@@ -5,7 +5,7 @@
 #include "ntdef.h"
 
 PEPROCESS LookupProcess(HANDLE Pid);
-DWORD EnumProcess(STRING processName);
+DWORD GetPidByEnumProcess(STRING processName);
 VOID Unload(PDRIVER_OBJECT DriverObject);
 VOID KeReadProcessMemory(ULONG64 add, PVOID buffer, SIZE_T size);
 VOID KeWriteProcessMemory(ULONG64 add, PVOID buffer, SIZE_T size);

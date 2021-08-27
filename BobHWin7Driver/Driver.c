@@ -1,5 +1,6 @@
 #include "Driverdef.h"
 #include "DeiverDefFun.h"
+#include "SSDT.h"
 
 NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	NTSTATUS status = STATUS_INVALID_DEVICE_REQUEST;
@@ -121,7 +122,7 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 
 
 		DWORD pid = 0;
-		pid = EnumProcess(process);
+		pid = GetPidByEnumProcess(process);
 		*(PDWORD)buffer = pid;
 
 		if (pid > 0)
@@ -209,7 +210,7 @@ PEPROCESS LookupProcess(HANDLE Pid)
 	return NULL;
 }
 
-DWORD EnumProcess(STRING processName)
+DWORD GetPidByEnumProcess(STRING processName)
 {
 	PEPROCESS eproc = NULL;
 
