@@ -1,6 +1,7 @@
 #pragma once
 #include "DeiverDefFun.h"
 #include "WindowsStructure.h"
+#include "GlobalVariables.h"
 #define BOBH_SET CTL_CODE(FILE_DEVICE_UNKNOWN,0x810,METHOD_BUFFERED,FILE_ANY_ACCESS)
 #define BOBH_READ CTL_CODE(FILE_DEVICE_UNKNOWN,0x811,METHOD_BUFFERED,FILE_ANY_ACCESS)
 #define BOBH_WRITE CTL_CODE(FILE_DEVICE_UNKNOWN,0x812,METHOD_BUFFERED,FILE_ANY_ACCESS)
@@ -15,21 +16,6 @@
 #define PROCESS_VM_OPERATION      0x0008  
 #define PROCESS_VM_READ           0x0010  
 #define PROCESS_VM_WRITE          0x0020 
-
-extern NTKERNELAPI PVOID PsGetProcessWow64Process(_In_ PEPROCESS Process);
-extern PVOID PsGetProcessPeb(_In_ PEPROCESS Process);
-extern NTKERNELAPI UCHAR* PsGetProcessImageFileName(IN PEPROCESS Process); //未公开的进行导出即可
-extern NTKERNELAPI HANDLE PsGetProcessInheritedFromUniqueProcessId(IN PEPROCESS Process);//未公开进行导出 
-
-UNICODE_STRING myDeviceName = RTL_CONSTANT_STRING(L"\\Device\\BobHWin7Read");//设备名称
-UNICODE_STRING symLinkName = RTL_CONSTANT_STRING(L"\\??\\BobHWin7ReadLink");//设备符号链接
-PDEVICE_OBJECT DeviceObject = NULL;
-
-PEPROCESS Process = NULL;
-
-DWORD protectPID = -1;
-PVOID g_pRegiHandle = NULL;
-BOOLEAN isProtecting = FALSE;
 
 struct r3Buffer {
 	ULONG64 Address;

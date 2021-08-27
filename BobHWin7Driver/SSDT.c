@@ -3,15 +3,12 @@
 #include "DeiverDefFun.h"
 #define SEC_IMAGE_ASD 0x1000000
 
-//通用获得PSYSTEM_SERVICE_TABLE方法
-PSYSTEM_SERVICE_TABLE GetSystemServiceTable_Generalmethod(PDRIVER_OBJECT pdriver);
 //获得PSYSTEM_SERVICE_TABLE方法 win7-win10 1895
 PSYSTEM_SERVICE_TABLE GetSystemServiceTable();
 //得到在SSDT中的地址
 ULONG64 GetSSDTAddress(PSYSTEM_SERVICE_TABLE servicestable, DWORD index);
 //得到在ShadowSSDT中的地址
 ULONG64 GetShadowSSDTAddress(PSYSTEM_SERVICE_TABLE servicestable, DWORD index);
-
 
 
 
@@ -328,11 +325,10 @@ ULONG64 GetShadowSSDTAddress(PSYSTEM_SERVICE_TABLE servicestable, DWORD index)
 }
 
 //得到在SSDT中序列号为index的地址
-ULONG64 GetSSDTAddr(PDRIVER_OBJECT pdriver, DWORD index)
+ULONG64 GetSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable,PDRIVER_OBJECT pdriver, DWORD index)
 {
 
 	ULONG64 ret = 0;
-	PSYSTEM_SERVICE_TABLE SystemServiceTable = GetSystemServiceTable_Generalmethod(pdriver);
 
 	PSYSTEM_SERVICE_TABLE ssdt = SystemServiceTable;
 
@@ -341,10 +337,9 @@ ULONG64 GetSSDTAddr(PDRIVER_OBJECT pdriver, DWORD index)
 	return ret;
 }
 //得到在ShadowSSDT中序列号为index的地址
-ULONG64 GetShadowSSDTAddr(PDRIVER_OBJECT pdriver, DWORD index)
+ULONG64 GetShadowSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable,PDRIVER_OBJECT pdriver, DWORD index)
 {
 	ULONG64 ret = 0;
-	PSYSTEM_SERVICE_TABLE SystemServiceTable = GetSystemServiceTable_Generalmethod(pdriver);
 
 	PSYSTEM_SERVICE_TABLE shoadowssdt = (PSYSTEM_SERVICE_TABLE)((DWORD64)SystemServiceTable + sizeof(SYSTEM_SERVICE_TABLE));
 

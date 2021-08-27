@@ -4,6 +4,13 @@
 #include <windef.h>
 #include "ntdef.h"
 
+
+extern NTKERNELAPI PVOID PsGetProcessWow64Process(_In_ PEPROCESS Process);
+extern PVOID PsGetProcessPeb(_In_ PEPROCESS Process);
+extern NTKERNELAPI UCHAR* PsGetProcessImageFileName(IN PEPROCESS Process); //未公开的进行导出即可
+extern NTKERNELAPI HANDLE PsGetProcessInheritedFromUniqueProcessId(IN PEPROCESS Process);//未公开进行导出 
+
+
 PEPROCESS LookupProcess(HANDLE Pid);
 DWORD GetPidByEnumProcess(STRING processName);
 VOID Unload(PDRIVER_OBJECT DriverObject);

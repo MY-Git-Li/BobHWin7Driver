@@ -184,7 +184,6 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 	/*HANDLE hThread;
 	PsCreateSystemThread(&hThread, 0, NULL, NULL, NULL, HideDriver, (PVOID)DriverObject);
 	ZwClose(hThread);*/
-	
 	return status;
 }
 

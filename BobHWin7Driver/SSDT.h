@@ -40,9 +40,11 @@ typedef struct _LDR_DATA_TABLE_ENTRY64 {
 	LARGE_INTEGER LoadTime;
 } LDR_DATA_TABLE_ENTRY64, * PLDR_DATA_TABLE_ENTRY64;
 
+//通用获得PSYSTEM_SERVICE_TABLE方法
+PSYSTEM_SERVICE_TABLE GetSystemServiceTable_Generalmethod(PDRIVER_OBJECT pdriver);
 //得到函数在SSDT中的序列号
 ULONG GetSSDTFunIndex(PUCHAR funname);
 //得到在SSDT中序列号为index的地址
-ULONG64 GetSSDTAddr(PDRIVER_OBJECT pdriver, DWORD index);
+ULONG64 GetSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable,PDRIVER_OBJECT pdriver, DWORD index);
 //得到在ShadowSSDT中序列号为index的地址
-ULONG64 GetShadowSSDTAddr(PDRIVER_OBJECT pdriver, DWORD index);
+ULONG64 GetShadowSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable,PDRIVER_OBJECT pdriver, DWORD index);

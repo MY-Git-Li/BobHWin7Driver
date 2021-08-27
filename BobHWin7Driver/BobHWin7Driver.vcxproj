@@ -164,6 +164,7 @@
   <ItemGroup>
     <ClInclude Include="DeiverDefFun.h" />
     <ClInclude Include="Driverdef.h" />
+    <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="SSDT.h" />
     <ClInclude Include="WindowsStructure.h" />
   </ItemGroup>
