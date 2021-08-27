@@ -12,27 +12,27 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	switch (CTLcode)
 	{
 	case BOBH_READ:
-		memcpy(&appBuffer, buffer, uInSize);
+		RtlCopyMemory(&appBuffer, buffer, uInSize);
 		KdPrint(("读收到的地址是:%x \r\n", appBuffer.Address));
 		tmpbuffer = ExAllocatePool(NonPagedPool, appBuffer.size + 1);
 		RtlFillMemory(tmpbuffer, appBuffer.size + 1, 0);
 		/*KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));*/
 		KeReadProcessMemory(appBuffer.Address, tmpbuffer, appBuffer.size);
 		/*KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));*/
-		memcpy(&appBuffer.Buffer, tmpbuffer, sizeof(tmpbuffer));
-		memcpy(buffer, &appBuffer, uInSize);
+		RtlCopyMemory(&appBuffer.Buffer, tmpbuffer, sizeof(tmpbuffer));
+		RtlCopyMemory(buffer, &appBuffer, uInSize);
 		ExFreePool(tmpbuffer);
 		status = STATUS_SUCCESS;
 		break;
 	case BOBH_WRITE:
-		memcpy(&appBuffer, buffer, uInSize);
+		RtlCopyMemory(&appBuffer, buffer, uInSize);
 		KdPrint(("写收到的地址是:%x \r\n", appBuffer.Address));
 
 		tmpbuffer = ExAllocatePool(NonPagedPool, appBuffer.size + 1);
 		RtlFillMemory(tmpbuffer, appBuffer.size + 1, 0);
 		KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));
 
-		memcpy(tmpbuffer, &appBuffer.Buffer, appBuffer.size);
+		RtlCopyMemory(tmpbuffer, &appBuffer.Buffer, appBuffer.size);
 		KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));
 
 		KeWriteProcessMemory(appBuffer.Address, tmpbuffer, appBuffer.size);
@@ -44,7 +44,7 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	case BOBH_SET:
 	{
 		DWORD PID;
-		memcpy(&PID, buffer, uInSize);
+		RtlCopyMemory(&PID, buffer, uInSize);
 		SetPID(PID);
 		status = STATUS_SUCCESS;
 		break;
@@ -52,7 +52,7 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	case BOBH_PROTECT:
 	{
 		DWORD PID;
-		memcpy(&PID, buffer, uInSize);
+		RtlCopyMemory(&PID, buffer, uInSize);
 		ProtectProcessStart(PID);
 		status = STATUS_SUCCESS;
 		break;
@@ -66,7 +66,7 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	case BOBH_KILLPROCESS_DIRECT:
 	{
 		DWORD PID;
-		memcpy(&PID, buffer, uInSize);
+		RtlCopyMemory(&PID, buffer, uInSize);
 		KeKillProcessSimple(PID);
 		status = STATUS_SUCCESS;
 		break;
@@ -74,7 +74,7 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	case BOBH_KILLPROCESS_MEMORY:
 	{
 		DWORD PID;
-		memcpy(&PID, buffer, uInSize);
+		RtlCopyMemory(&PID, buffer, uInSize);
 		KeKillProcessZeroMemory(PID);
 		status = STATUS_SUCCESS;
 		break;
