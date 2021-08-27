@@ -238,7 +238,7 @@ VOID KeReadProcessMemory(ULONG64 add, PVOID buffer, SIZE_T size){
 	{
 		if (MmIsAddressValid(add))
 		{
-			memcpy(buffer, (PVOID)add, size);
+			RtlCopyMemory(buffer, (PVOID)add, size);
 		}
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
@@ -254,12 +254,29 @@ VOID KeWriteProcessMemory(ULONG64 add, PVOID buffer, SIZE_T size) {
 	{
 		if (MmIsAddressValid(add))
 		{
-			memcpy((PVOID)add, buffer, size);
+			RtlCopyMemory((PVOID)add, buffer, size);
 		}
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
-		DbgPrint("∂¡»°¥ÌŒÛ:µÿ÷∑:%llX", add);
+		__try 
+		{
+			KIRQL irql = WPOFFx64();
+			
+
+			if (MmIsAddressValid(add))
+			{
+				RtlCopyMemory((PVOID)add, buffer, size);
+			}
+
+			WPONx64(irql);
+
+		}
+
+		__except (1)
+		{
+			DbgPrint("∂¡»°¥ÌŒÛ:µÿ÷∑:%llX", add);
+		}
 	}
 	KeUnstackDetachProcess(&apc_state);
 }

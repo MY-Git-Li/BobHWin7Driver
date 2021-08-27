@@ -87,7 +87,7 @@ int main()
 
 	hdevice = CreateFile(L"\\\\.\\BobHWin7ReadLink", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,NULL);
 	
-	/*{
+	{
 		if (hdevice == INVALID_HANDLE_VALUE)
 		{
 			printf("打开失败\n");
@@ -110,14 +110,20 @@ int main()
 		system("pause");
 
 		DWORD bianliang = 520;
-		printf("写之前变量的地址为%x,变量的值为%d\n", &bianliang, bianliang);
+		printf("写之前变量的地址为%llx,变量的值为%d\n", &bianliang, bianliang);
 
 
 		system("pause");
 
-		appBuffer.Address = (ULONG64)&bianliang;
+		ULONG64 address=0;
+		printf("请输入读的地址为\n");
+		scanf_s("%llx", &address);
+		printf("你输入的地址是 %llx\n", address);
+
+
+		appBuffer.Address = address;
 		appBuffer.Buffer = { 0 };
-		appBuffer.size = sizeof(appBuffer);
+		appBuffer.size = sizeof(DWORD);
 
 		printf("开始读内存\n");
 
@@ -125,17 +131,23 @@ int main()
 
 		DeviceIoControl(hdevice, BOBH_READ, &appBuffer, sizeof(appBuffer), &appBuffer, sizeof(appBuffer), &Count, NULL);
 
-		
+
 		printf("读到的数据为 = %d\n", appBuffer.Buffer);
-		
+
 
 		system("pause");
 
 		printf("开始写内存\n");
+
+		printf("请输入写地址\n");
+		scanf_s("%llx", &address);
+		printf("你输入的地址是 %llx\n", address);
+		appBuffer.Address = address;
+
 		printf("请输入写的多少\n");
 		scanf_s("%d", &appBuffer.Buffer);
 
-		appBuffer.size = sizeof(appBuffer);
+		appBuffer.size = sizeof(DWORD);
 
 		system("pause");
 
@@ -160,7 +172,7 @@ int main()
 		DeviceIoControl(hdevice, BOBH_UNPROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
 		printf("关闭进程完成\n");
 		system("pause");
-	}*/
+	}
 	
 	
 
@@ -204,7 +216,7 @@ int main()
 	//	system("pause");
 	//}
 
-	{
+	/*{
 		MYCHAR mychar = { 0 };
 		printf("开始枚举进程\n");
 		DWORD ret = 0, dwrite = 0;
@@ -221,7 +233,7 @@ int main()
 
 		printf("得到%s进程的Pid为%d\n", mychar._char, ret);
 		system("pause");
-	}
+	}*/
 	
 	CloseHandle(hdevice);
 	return 0;
