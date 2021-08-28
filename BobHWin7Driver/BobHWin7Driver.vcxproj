@@ -147,26 +147,42 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\vs2019_github\BobHWinDriver-master\BobHWin7Driver;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <AdditionalIncludeDirectories>C:\Users\Adminis\Desktop\InfinityHook-master\src\libinfinityhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
+      <AdditionalLibraryDirectories>E:\vs2019_github\BobHWinDriver-master\BobHWin7Driver;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libinfinityhook.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Driver.c" />
+    <ClCompile Include="HOOK.c" />
     <ClCompile Include="SSDT.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DeiverDefFun.h" />
     <ClInclude Include="Driverdef.h" />
     <ClInclude Include="GlobalVariables.h" />
+    <ClInclude Include="HOOK.h" />
+    <ClInclude Include="infinityhook.h" />
     <ClInclude Include="SSDT.h" />
     <ClInclude Include="WindowsStructure.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="libinfinityhook.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

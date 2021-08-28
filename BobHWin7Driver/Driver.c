@@ -184,6 +184,26 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 	/*HANDLE hThread;
 	PsCreateSystemThread(&hThread, 0, NULL, NULL, NULL, HideDriver, (PVOID)DriverObject);
 	ZwClose(hThread);*/
+	/*SyscallStub(NULL, NULL);*/
+
+
+	//无用----win7
+	/*static UNICODE_STRING StringNtCreateFile = RTL_CONSTANT_STRING(L"NtOpenProcess");
+	OriginalNtOpenProcess = (NtCreateFile_t)MmGetSystemRoutineAddress(&StringNtCreateFile);
+	if (!OriginalNtOpenProcess)
+	{
+		kprintf("[-] infinityhook: Failed to locate export: %wZ.\n", StringNtCreateFile);
+		return STATUS_ENTRYPOINT_NOT_FOUND;
+	}
+	NTSTATUS Status = IfhInitialize(SyscallStub);
+	if (!NT_SUCCESS(Status))
+	{
+		kprintf("[-] infinityhook: Failed to initialize with status: 0x%lx.\n", Status);
+	}
+	else
+	{
+		kprintf("HOOK SUCCESS");
+	}*/
 	return status;
 }
 
@@ -191,8 +211,12 @@ VOID Unload(PDRIVER_OBJECT DriverObject) {
 	if (isProtecting) {
 		ObUnRegisterCallbacks(g_pRegiHandle);
 	}
+	IfhRelease();
+
 	IoDeleteSymbolicLink(&symLinkName);
 	IoDeleteDevice(DeviceObject);
+
+	
 	KdPrint(("[BobHWin7]成功卸载驱动 \r\n"));
 }
 

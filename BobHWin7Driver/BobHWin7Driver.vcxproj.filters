@@ -25,6 +25,9 @@
     <ClCompile Include="SSDT.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HOOK.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Driverdef.h">
@@ -42,5 +45,14 @@
     <ClInclude Include="GlobalVariables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="infinityhook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HOOK.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="libinfinityhook.lib" />
   </ItemGroup>
 </Project>
