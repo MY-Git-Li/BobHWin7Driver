@@ -4,15 +4,32 @@
 
 PVOID S_OpenProcess = NULL;
 PVOID S_ReadVirtualMemory = NULL;
+
 UINT64 SSDT_ReadVirtualMemory = NULL;
 UINT64 SSDT_OpenProcess = NULL;
 
+PVOID S_WriteVirtualMemory = NULL;
+UINT64 SSDT_WriteVirtualMemory = NULL;
+
+NTSTATUS __fastcall MyWriteVirtualMemory(
+	HANDLE               ProcessHandle,
+	PVOID                BaseAddress,
+	PVOID                Buffer,
+	ULONG                NumberOfBytesToWrite,
+	PULONG              NumberOfBytesWritten) 
+{
+	DbgPrint("WriteMemory---ProcessHandle---<%d>  BaseAddress---<%p> ", ProcessHandle, BaseAddress);
+
+	pNtWriteVirtualMemory temp =(pNtWriteVirtualMemory)S_WriteVirtualMemory;
+
+	return temp(ProcessHandle, BaseAddress, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten);
+}
 
 NTSTATUS __fastcall MyReadVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress,
 	PVOID Buffer, ULONG BufferLength,
 	PULONG ReturnLength)
 {
-	DbgPrint("ProcessHandle---<%d>  BaseAddress---<%p> ", ProcessHandle, BaseAddress);
+	DbgPrint("ReadMemory---ProcessHandle---<%d>  BaseAddress---<%p> \n", ProcessHandle, BaseAddress);
 
 	pMyReadVirtualMemory pTypeAdd2 = (pMyReadVirtualMemory)S_ReadVirtualMemory;
 
@@ -34,5 +51,6 @@ NTSTATUS __fastcall MyOpenProcess(PHANDLE ProcessHandle, ACCESS_MASK DesiredAcce
 	DbgPrint("OpenProcess---PID<%d>", ClientId->UniqueProcess);
 
 	pMyOpenProcess temp = (pMyOpenProcess)S_OpenProcess;
+
 	return (temp)(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
 }

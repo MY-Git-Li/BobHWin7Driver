@@ -220,24 +220,44 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 		kprintf("HOOK SUCCESS");
 	}*/
 	GetVersion();
+
+	DbgPrint("¿ªÊ¼HOOK");
+
 	LDE_init();
 
 	PSYSTEM_SERVICE_TABLE service = GetSystemServiceTable_Generalmethod(DriverObject);
 
+	
 	SSDT_OpenProcess = GetSSDTAddr(service, GetSSDTFunIndex("NtOpenProcess"));
 
-	DbgPrint("NtOpenProcess head--<%d>"  ,GetPatchSize(SSDT_OpenProcess));
+	Head_OpenProcess = GetPatchSize(SSDT_OpenProcess);
+
+	DbgPrint("NtOpenProcess head--<%d>",Head_OpenProcess);
+
+	StartHOOK((UINT64)SSDT_OpenProcess, (UINT64)&MyOpenProcess,/*(20)*/(USHORT)Head_OpenProcess, &S_OpenProcess);
 
 
-	StartHOOK((UINT64)SSDT_OpenProcess, (UINT64)&MyOpenProcess, 20, &S_OpenProcess);
 
 
-	
 	SSDT_ReadVirtualMemory = GetSSDTAddr(service, GetSSDTFunIndex("NtReadVirtualMemory"));
 
-	DbgPrint("SSDT_ReadVirtualMemory head--<%d>", GetPatchSize(SSDT_ReadVirtualMemory));
+	Head_ReadVirtualMemory = GetPatchSize(SSDT_ReadVirtualMemory);
 
-	StartHOOK((UINT64)SSDT_ReadVirtualMemory, (UINT64)&MyReadVirtualMemory, 15, &S_ReadVirtualMemory);
+	DbgPrint("SSDT_ReadVirtualMemory head--<%d>", Head_ReadVirtualMemory);
+
+	StartHOOK((UINT64)SSDT_ReadVirtualMemory, (UINT64)&MyReadVirtualMemory, /*(15)*/(USHORT)Head_ReadVirtualMemory, &S_ReadVirtualMemory);
+
+
+
+
+	SSDT_WriteVirtualMemory = GetSSDTAddr(service, GetSSDTFunIndex("NtWriteVirtualMemory"));
+
+	Head_WriteVirtualMemory = GetPatchSize(SSDT_WriteVirtualMemory);
+
+	DbgPrint("WriteVirtualMemory head--<%d>", Head_WriteVirtualMemory);
+
+	StartHOOK((UINT64)SSDT_WriteVirtualMemory, (UINT64)&MyWriteVirtualMemory,(USHORT)Head_WriteVirtualMemory, &S_WriteVirtualMemory);
+
 
 
 	return status;
@@ -249,10 +269,11 @@ VOID Unload(PDRIVER_OBJECT DriverObject) {
 	}
 	
 
-	RecoveryHOOK(SSDT_ReadVirtualMemory, 15, S_ReadVirtualMemory);
-	RecoveryHOOK(SSDT_OpenProcess, 20, S_OpenProcess);
+	RecoveryHOOK(SSDT_ReadVirtualMemory, /*15*/Head_ReadVirtualMemory, S_ReadVirtualMemory);
 
+	RecoveryHOOK(SSDT_OpenProcess,/* 20*/Head_OpenProcess, S_OpenProcess);
 
+	RecoveryHOOK(SSDT_WriteVirtualMemory, Head_WriteVirtualMemory, S_WriteVirtualMemory);
 
 	IoDeleteSymbolicLink(&symLinkName);
 	IoDeleteDevice(DeviceObject);
