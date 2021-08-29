@@ -45,6 +45,6 @@ PSYSTEM_SERVICE_TABLE GetSystemServiceTable_Generalmethod(PDRIVER_OBJECT pdriver
 //得到函数在SSDT中的序列号
 ULONG GetSSDTFunIndex(PUCHAR funname);
 //得到在SSDT中序列号为index的地址
-ULONG64 GetSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable,PDRIVER_OBJECT pdriver, DWORD index);
+ULONG64 GetSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable, DWORD index);
 //得到在ShadowSSDT中序列号为index的地址
-ULONG64 GetShadowSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable,PDRIVER_OBJECT pdriver, DWORD index);
+ULONG64 GetShadowSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable, DWORD index);

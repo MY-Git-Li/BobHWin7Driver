@@ -168,8 +168,12 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DeiverDefFun.c" />
     <ClCompile Include="Driver.c" />
+    <ClCompile Include="GlobalVariables.c" />
     <ClCompile Include="HOOK.c" />
+    <ClCompile Include="HookElxp.c" />
+    <ClCompile Include="MyHook.c" />
     <ClCompile Include="SSDT.c" />
   </ItemGroup>
   <ItemGroup>
@@ -177,7 +181,11 @@
     <ClInclude Include="Driverdef.h" />
     <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="HOOK.h" />
+    <ClInclude Include="HookElxp.h" />
     <ClInclude Include="infinityhook.h" />
+    <ClInclude Include="LDE64x64.h" />
+    <ClInclude Include="MyHead.h" />
+    <ClInclude Include="MyHook.h" />
     <ClInclude Include="SSDT.h" />
     <ClInclude Include="WindowsStructure.h" />
   </ItemGroup>

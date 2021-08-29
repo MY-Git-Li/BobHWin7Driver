@@ -6,7 +6,7 @@
 //获得PSYSTEM_SERVICE_TABLE方法 win7-win10 1895
 PSYSTEM_SERVICE_TABLE GetSystemServiceTable();
 //得到在SSDT中的地址
-ULONG64 GetSSDTAddress(PSYSTEM_SERVICE_TABLE servicestable, DWORD index);
+ULONG64 GetSSDTAddress_Generalmethod(PSYSTEM_SERVICE_TABLE servicestable, DWORD index);
 //得到在ShadowSSDT中的地址
 ULONG64 GetShadowSSDTAddress(PSYSTEM_SERVICE_TABLE servicestable, DWORD index);
 
@@ -143,7 +143,7 @@ PSYSTEM_SERVICE_TABLE GetSystemServiceTable()
 }
 
 //得到在SSDT中的地址
-ULONG64 GetSSDTAddress(PSYSTEM_SERVICE_TABLE servicestable,DWORD index)
+ULONG64 GetSSDTAddress_Generalmethod(PSYSTEM_SERVICE_TABLE servicestable,DWORD index)
 {
 
 	ULONG64 reallyaddr = 0;
@@ -321,23 +321,23 @@ ULONG GetSSDTFunIndex(PUCHAR funname)
 //得到在SSDT中的地址
 ULONG64 GetShadowSSDTAddress(PSYSTEM_SERVICE_TABLE servicestable, DWORD index)
 {
-	return GetSSDTAddress(servicestable, index);
+	return GetSSDTAddress_Generalmethod(servicestable, index);
 }
 
 //得到在SSDT中序列号为index的地址
-ULONG64 GetSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable,PDRIVER_OBJECT pdriver, DWORD index)
+ULONG64 GetSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable, DWORD index)
 {
 
 	ULONG64 ret = 0;
 
 	PSYSTEM_SERVICE_TABLE ssdt = SystemServiceTable;
 
-	ret = GetSSDTAddress(ssdt, index);
+	ret = GetSSDTAddress_Generalmethod(ssdt, index);
 
 	return ret;
 }
 //得到在ShadowSSDT中序列号为index的地址
-ULONG64 GetShadowSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable,PDRIVER_OBJECT pdriver, DWORD index)
+ULONG64 GetShadowSSDTAddr(PSYSTEM_SERVICE_TABLE SystemServiceTable, DWORD index)
 {
 	ULONG64 ret = 0;
 

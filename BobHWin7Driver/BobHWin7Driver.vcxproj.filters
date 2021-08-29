@@ -28,6 +28,18 @@
     <ClCompile Include="HOOK.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MyHook.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HookElxp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeiverDefFun.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalVariables.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Driverdef.h">
@@ -49,6 +61,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HOOK.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MyHook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HookElxp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LDE64x64.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MyHead.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
