@@ -7,14 +7,13 @@
 //得到系统版本号
 VOID GetVersion()
 {
-	ULONG NtBuildNumber;
+	/*ULONG NtBuildNumber;*/
 	RTL_OSVERSIONINFOW osi;
 	osi.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOW);
 	RtlFillMemory(&osi, sizeof(RTL_OSVERSIONINFOW), 0);
 	RtlGetVersion(&osi);
-	NtBuildNumber = osi.dwBuildNumber;
-	DbgPrint("NtBuildNumber: %ld\n", NtBuildNumber);
-	return NtBuildNumber;
+	DbgPrint("当前系统版本:%ld.%ld.%ld\n", osi.dwMajorVersion,osi.dwMinorVersion,osi.dwBuildNumber);
+	//return NtBuildNumber;
 }
 NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	NTSTATUS status = STATUS_INVALID_DEVICE_REQUEST;

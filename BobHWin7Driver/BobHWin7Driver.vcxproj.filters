@@ -57,9 +57,6 @@
     <ClInclude Include="GlobalVariables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="infinityhook.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="HOOK.h">
       <Filter>Header Files</Filter>
     </ClInclude>
