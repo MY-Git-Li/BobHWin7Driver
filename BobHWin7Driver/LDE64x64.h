@@ -853,3 +853,8 @@ ULONG GetPatchSize(PUCHAR Address)
 	}
 	return LenCount;
 }
+
+void LDE_End()
+{
+	ExFreePool(LDE);
+}

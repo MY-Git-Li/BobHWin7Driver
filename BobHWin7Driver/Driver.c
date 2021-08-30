@@ -277,6 +277,7 @@ VOID Unload(PDRIVER_OBJECT DriverObject) {
 	IoDeleteSymbolicLink(&symLinkName);
 	IoDeleteDevice(DeviceObject);
 
+	LDE_End();
 	KdPrint(("[BobHWin7]³É¹¦Ð¶ÔØÇý¶¯ \r\n"));
 }
 
