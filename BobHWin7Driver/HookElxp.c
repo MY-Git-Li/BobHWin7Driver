@@ -5,11 +5,11 @@
 PVOID S_OpenProcess = NULL;
 PVOID S_ReadVirtualMemory = NULL;
 
-UINT64 SSDT_ReadVirtualMemory = NULL;
-UINT64 SSDT_OpenProcess = NULL;
+UINT64 SSDT_ReadVirtualMemory = 0;
+UINT64 SSDT_OpenProcess = 0;
 
 PVOID S_WriteVirtualMemory = NULL;
-UINT64 SSDT_WriteVirtualMemory = NULL;
+UINT64 SSDT_WriteVirtualMemory = 0;
 
 NTSTATUS __fastcall MyWriteVirtualMemory(
 	HANDLE               ProcessHandle,
@@ -18,8 +18,16 @@ NTSTATUS __fastcall MyWriteVirtualMemory(
 	ULONG                NumberOfBytesToWrite,
 	PULONG              NumberOfBytesWritten) 
 {
-	DbgPrint("WriteMemory---ProcessHandle---<%d>  BaseAddress---<%p> ", ProcessHandle, BaseAddress);
+	/*DbgPrint("WriteMemory---ProcessHandle---<%d>  BaseAddress---<%p> ", ProcessHandle, BaseAddress);*/
 
+	/*DbgPrint("写入的数据为：");*/
+	DbgPrint("WriteMemory--ProcessHandle--<%d> Address--<%p> 开始", ProcessHandle, BaseAddress);
+	for (BYTE i	= 0;i< NumberOfBytesToWrite;i++)
+	{
+		DbgPrint("ProcessHandle---<%d> Address---<%p> WriteData--<0x%.2x>", ProcessHandle,(LONG64)BaseAddress+i,((PBYTE)Buffer)[i]);
+	}
+	DbgPrint("WriteMemory---ProcessHandle--<%d> Address--<%p> 完成", ProcessHandle, BaseAddress);
+	
 	pNtWriteVirtualMemory temp =(pNtWriteVirtualMemory)S_WriteVirtualMemory;
 
 	return temp(ProcessHandle, BaseAddress, Buffer, NumberOfBytesToWrite, NumberOfBytesWritten);
@@ -29,7 +37,7 @@ NTSTATUS __fastcall MyReadVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress,
 	PVOID Buffer, ULONG BufferLength,
 	PULONG ReturnLength)
 {
-	DbgPrint("ReadMemory---ProcessHandle---<%d>  BaseAddress---<%p> \n", ProcessHandle, BaseAddress);
+	DbgPrint("ReadMemory--ProcessHandle--<%d> Address--<%p> BufferLength--<%ld>\n", ProcessHandle, BaseAddress, BufferLength);
 
 	pMyReadVirtualMemory pTypeAdd2 = (pMyReadVirtualMemory)S_ReadVirtualMemory;
 
