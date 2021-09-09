@@ -4,7 +4,6 @@
 #include "windows.h"
 #include <locale.h>
 #include <iostream>
-#include "PassPG.h"
 
 
 using namespace std;

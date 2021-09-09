@@ -28,9 +28,6 @@
     <ClCompile Include="HOOK.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MyHook.c">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="HookElxp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -38,7 +35,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GlobalVariables.c">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MyHook.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
