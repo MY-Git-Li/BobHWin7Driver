@@ -12,7 +12,7 @@ VOID GetVersion()
 	osi.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOW);
 	RtlFillMemory(&osi, sizeof(RTL_OSVERSIONINFOW), 0);
 	RtlGetVersion(&osi);
-	DbgPrint("当前系统版本:%ld.%ld.%ld\n", osi.dwMajorVersion,osi.dwMinorVersion,osi.dwBuildNumber);
+	KdPrint(("当前系统版本:%ld.%ld.%ld\n", osi.dwMajorVersion,osi.dwMinorVersion,osi.dwBuildNumber));
 	//return NtBuildNumber;
 }
 NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
@@ -220,7 +220,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 	}*/
 	GetVersion();
 
-	DbgPrint("开始HOOK");
+	KdPrint(("开始HOOK"));
 
 	LDE_init();
 
@@ -231,7 +231,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 
 	Head_OpenProcess = GetPatchSize(SSDT_OpenProcess);
 
-	DbgPrint("NtOpenProcess head--<%d>",Head_OpenProcess);
+	KdPrint(("NtOpenProcess head--<%d>",Head_OpenProcess));
 
 	StartHOOK((UINT64)SSDT_OpenProcess, (UINT64)&MyOpenProcess,/*(20)*/(USHORT)Head_OpenProcess, &S_OpenProcess);
 
@@ -242,7 +242,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 
 	Head_ReadVirtualMemory = GetPatchSize(SSDT_ReadVirtualMemory);
 
-	DbgPrint("SSDT_ReadVirtualMemory head--<%d>", Head_ReadVirtualMemory);
+	KdPrint(("SSDT_ReadVirtualMemory head--<%d>", Head_ReadVirtualMemory));
 
 	StartHOOK((UINT64)SSDT_ReadVirtualMemory, (UINT64)&MyReadVirtualMemory, /*(15)*/(USHORT)Head_ReadVirtualMemory, &S_ReadVirtualMemory);
 
@@ -253,12 +253,12 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 
 	Head_WriteVirtualMemory = GetPatchSize(SSDT_WriteVirtualMemory);
 
-	DbgPrint("WriteVirtualMemory head--<%d>", Head_WriteVirtualMemory);
+	KdPrint(("WriteVirtualMemory head--<%d>", Head_WriteVirtualMemory));
 
 	StartHOOK((UINT64)SSDT_WriteVirtualMemory, (UINT64)&MyWriteVirtualMemory,(USHORT)Head_WriteVirtualMemory, &S_WriteVirtualMemory);
 
 
-	DbgPrint("HOOK完成");
+	KdPrint(("HOOK完成"));
 	return status;
 }
 

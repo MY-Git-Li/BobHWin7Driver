@@ -21,12 +21,12 @@ NTSTATUS __fastcall MyWriteVirtualMemory(
 	/*DbgPrint("WriteMemory---ProcessHandle---<%d>  BaseAddress---<%p> ", ProcessHandle, BaseAddress);*/
 
 	/*DbgPrint("写入的数据为：");*/
-	DbgPrint("WriteMemory--ProcessHandle--<%d> Address--<%p> 开始", ProcessHandle, BaseAddress);
+	KdPrint(("WriteMemory--ProcessHandle--<%d> Address--<%p> 开始", ProcessHandle, BaseAddress));
 	for (BYTE i	= 0;i< NumberOfBytesToWrite;i++)
 	{
-		DbgPrint("ProcessHandle---<%d> Address---<%p> WriteData--<0x%.2x>", ProcessHandle,(LONG64)BaseAddress+i,((PBYTE)Buffer)[i]);
+		KdPrint(("ProcessHandle---<%d> Address---<%p> WriteData--<0x%.2x>", ProcessHandle,(LONG64)BaseAddress+i,((PBYTE)Buffer)[i]));
 	}
-	DbgPrint("WriteMemory---ProcessHandle--<%d> Address--<%p> 完成", ProcessHandle, BaseAddress);
+	KdPrint(("WriteMemory---ProcessHandle--<%d> Address--<%p> 完成", ProcessHandle, BaseAddress));
 	
 	pNtWriteVirtualMemory temp =(pNtWriteVirtualMemory)S_WriteVirtualMemory;
 
@@ -37,7 +37,7 @@ NTSTATUS __fastcall MyReadVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress,
 	PVOID Buffer, ULONG BufferLength,
 	PULONG ReturnLength)
 {
-	DbgPrint("ReadMemory--ProcessHandle--<%d> Address--<%p> BufferLength--<%ld>\n", ProcessHandle, BaseAddress, BufferLength);
+	KdPrint(("ReadMemory--ProcessHandle--<%d> Address--<%p> BufferLength--<%ld>\n", ProcessHandle, BaseAddress, BufferLength));
 
 	pMyReadVirtualMemory pTypeAdd2 = (pMyReadVirtualMemory)S_ReadVirtualMemory;
 
@@ -56,7 +56,7 @@ NTSTATUS __fastcall MyOpenProcess(PHANDLE ProcessHandle, ACCESS_MASK DesiredAcce
 			return STATUS_PNP_INVALID_ID;
 		}
 	}*/
-	DbgPrint("OpenProcess---PID<%d>", ClientId->UniqueProcess);
+	KdPrint(("OpenProcess---PID<%d>", ClientId->UniqueProcess));
 
 	pMyOpenProcess temp = (pMyOpenProcess)S_OpenProcess;
 
