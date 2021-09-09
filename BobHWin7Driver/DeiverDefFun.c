@@ -35,8 +35,8 @@ DWORD GetPidByEnumProcess(STRING processName)
 				break;
 			}
 
-			DbgPrint("进程名: %s --> 进程PID = %d --> 父进程PPID = %d\r\n", PsGetProcessImageFileName(eproc), PsGetProcessId(eproc),
-				PsGetProcessInheritedFromUniqueProcessId(eproc));
+			KdPrint(("进程名: %s --> 进程PID = %d --> 父进程PPID = %d\r\n", PsGetProcessImageFileName(eproc), PsGetProcessId(eproc),
+				PsGetProcessInheritedFromUniqueProcessId(eproc)));
 			ObDereferenceObject(eproc);
 		}
 	}

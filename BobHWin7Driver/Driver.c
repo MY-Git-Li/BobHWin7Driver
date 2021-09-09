@@ -30,9 +30,9 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 		KdPrint(("读收到的地址是:%x \r\n", appBuffer.Address));
 		tmpbuffer = ExAllocatePool(NonPagedPool, appBuffer.size + 1);
 		RtlFillMemory(tmpbuffer, appBuffer.size + 1, 0);
-		/*KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));*/
+		KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));
 		KeReadProcessMemory(appBuffer.Address, tmpbuffer, appBuffer.size);
-		/*KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));*/
+		KdPrint(("tmpbuffer地址是%x 内容为%d \r\n", tmpbuffer, *(DWORD*)tmpbuffer));
 		RtlCopyMemory(&appBuffer.Buffer, tmpbuffer, sizeof(tmpbuffer));
 		RtlCopyMemory(buffer, &appBuffer, uInSize);
 		ExFreePool(tmpbuffer);
@@ -188,36 +188,10 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 	ldr = (PLDR_DATA_TABLE_ENTRY)DriverObject->DriverSection;
 	ldr->Flags |= 0x20;
 	KdPrint(("[BobHWin7]LDR修改成功 \r\n"));
-	//ProtectProcessStart(1234);
-	//ProtectProcessStart(3100);
-	// 
-	//隐藏驱动卸载蓝屏,偶尔蓝屏
-	//HideDriver(DriverObject);
-	//隐藏驱动卸载卡死
-	//IoRegisterDriverReinitialization(DriverObject, Reinitialize, NULL);
-	/*HANDLE hThread;
-	PsCreateSystemThread(&hThread, 0, NULL, NULL, NULL, HideDriver, (PVOID)DriverObject);
-	ZwClose(hThread);*/
-	/*SyscallStub(NULL, NULL);*/
+	
 
 
-	//无用----win7
-	/*static UNICODE_STRING StringNtCreateFile = RTL_CONSTANT_STRING(L"NtOpenProcess");
-	OriginalNtOpenProcess = (NtCreateFile_t)MmGetSystemRoutineAddress(&StringNtCreateFile);
-	if (!OriginalNtOpenProcess)
-	{
-		kprintf("[-] infinityhook: Failed to locate export: %wZ.\n", StringNtCreateFile);
-		return STATUS_ENTRYPOINT_NOT_FOUND;
-	}
-	NTSTATUS Status = IfhInitialize(SyscallStub);
-	if (!NT_SUCCESS(Status))
-	{
-		kprintf("[-] infinityhook: Failed to initialize with status: 0x%lx.\n", Status);
-	}
-	else
-	{
-		kprintf("HOOK SUCCESS");
-	}*/
+
 	GetVersion();
 
 	KdPrint(("开始HOOK"));
