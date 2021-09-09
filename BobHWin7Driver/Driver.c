@@ -216,7 +216,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 
 	Head_ReadVirtualMemory = GetPatchSize(SSDT_ReadVirtualMemory);
 
-	KdPrint(("SSDT_ReadVirtualMemory head--<%d>", Head_ReadVirtualMemory));
+	KdPrint(("NtReadVirtualMemory head--<%d>", Head_ReadVirtualMemory));
 
 	StartHOOK((UINT64)SSDT_ReadVirtualMemory, (UINT64)&MyReadVirtualMemory, /*(15)*/(USHORT)Head_ReadVirtualMemory, &S_ReadVirtualMemory);
 
@@ -227,7 +227,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 
 	Head_WriteVirtualMemory = GetPatchSize(SSDT_WriteVirtualMemory);
 
-	KdPrint(("WriteVirtualMemory head--<%d>", Head_WriteVirtualMemory));
+	KdPrint(("NtWriteVirtualMemory head--<%d>", Head_WriteVirtualMemory));
 
 	StartHOOK((UINT64)SSDT_WriteVirtualMemory, (UINT64)&MyWriteVirtualMemory,(USHORT)Head_WriteVirtualMemory, &S_WriteVirtualMemory);
 
