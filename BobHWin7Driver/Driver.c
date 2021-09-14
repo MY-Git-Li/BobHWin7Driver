@@ -233,6 +233,13 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 
 
 	KdPrint(("HOOK完成"));
+
+
+	/*KdPrint(("开始测试隐藏进程"));
+	HideProcess(1896);*/
+
+
+
 	return status;
 }
 
