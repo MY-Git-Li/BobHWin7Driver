@@ -86,159 +86,207 @@ int main()
 {
 	
 	/*PassPG();*/
-	//HANDLE hdevice = NULL;
+	HANDLE hdevice = NULL;
 
 
-	//hdevice = CreateFile(L"\\\\.\\BobHWin7ReadLink", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,NULL);
-	//
-	//{
-	//	if (hdevice == INVALID_HANDLE_VALUE)
-	//	{
-	//		printf("打开失败\n");
-	//		system("pause");
-	//		return 0;
-	//	}
-	//	printf("打开成功\n");
-	//	system("pause");
+	hdevice = CreateFile(L"\\\\.\\BobHWin7ReadLink", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
-	//	DWORD Pid, Count;
+	{
+		if (hdevice == INVALID_HANDLE_VALUE)
+		{
+			printf("打开失败\n");
+			system("pause");
+			return 0;
+		}
+		printf("打开成功\n");
+		system("pause");
+	}
+GO_St:
 
-	//	printf("请输入设置读写的PID\n");
-	//	scanf_s("%d", &Pid);
-	//	printf("你输入的PID为：%d\n", Pid);
-	//	system("pause");
-
-	//	printf("开始设置读写的PID\n");
-	//	DeviceIoControl(hdevice, BOBH_SET, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
-	//	printf("设置PID成功\n");
-	//	system("pause");
-
-	//	DWORD bianliang = 520;
-	//	printf("写之前变量的地址为%llx,变量的值为%d\n", &bianliang, bianliang);
-
-
-	//	system("pause");
-
-	//	ULONG64 address=0;
-	//	printf("请输入读的地址为\n");
-	//	scanf_s("%llx", &address);
-	//	printf("你输入的地址是 %llx\n", address);
-
-
-	//	appBuffer.Address = address;
-	//	appBuffer.Buffer = { 0 };
-	//	appBuffer.size = sizeof(DWORD);
-
-	//	printf("开始读内存\n");
-
-	//	system("pause");
-
-	//	DeviceIoControl(hdevice, BOBH_READ, &appBuffer, sizeof(appBuffer), &appBuffer, sizeof(appBuffer), &Count, NULL);
+	printf("\n\n\n请输入功能：\n");
+	printf("1.读写进程内存地址数据\n2.读取进程模块地址\n3.通过名称得到进程PID\n4.保护进程\n");
+	int i;
+	scanf_s("%d", &i);
+	switch (i)
+	{
+	case 1:
+		goto GO_1;
+		break;
+	case 2:
+		goto GO_2;
+		break;
+	case 3:
+		goto GO_3;
+		break;
+	default:
+		printf("输入错误，请从新输入\n");
+		goto GO_St;
+		break;
+	case 4:
+		goto GO_4;
+		break;
+	}
 
 
-	//	printf("读到的数据为 = %d\n", appBuffer.Buffer);
+GO_1:
+	printf("\n\n\n");
+	printf("开始读取进程内存地址数据:\n");
+	{
+
+		DWORD Pid, Count;
+
+		printf("请输入设置读写的PID：\n");
+		scanf_s("%d", &Pid);
+		/*printf("你输入的PID为：%d\n", Pid);
+		system("pause");
+
+		printf("开始设置读写的PID\n");*/
+		DeviceIoControl(hdevice, BOBH_SET, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+		printf("设置PID成功\n");
+		system("pause");
+
+		DWORD bianliang = 520;
+		printf("写之前变量的地址为%llx,变量的值为%d\n", &bianliang, bianliang);
 
 
-	//	system("pause");
+		system("pause");
 
-	//	printf("开始写内存\n");
-
-	//	printf("请输入写地址\n");
-	//	scanf_s("%llx", &address);
-	//	printf("你输入的地址是 %llx\n", address);
-	//	appBuffer.Address = address;
-
-	//	printf("请输入写的多少\n");
-	//	scanf_s("%d", &appBuffer.Buffer);
-
-	//	appBuffer.size = sizeof(DWORD);
-
-	//	system("pause");
-
-	//	DeviceIoControl(hdevice, BOBH_WRITE, &appBuffer, sizeof(appBuffer), &appBuffer, sizeof(appBuffer), &Count, NULL);
-
-	//	printf("写之后变量的地址为%x,变量的值为%d\n", &bianliang, bianliang);
-	//	system("pause");
+		ULONG64 address = 0;
+		printf("请输入读的地址为：\n");
+		scanf_s("%llx", &address);
+	/*	printf("你输入的地址是 %llx\n", address);*/
 
 
-	//	printf("开始保护进程\n");
+		appBuffer.Address = address;
+		appBuffer.Buffer = { 0 };
+		appBuffer.size = sizeof(DWORD);
 
-	//	printf("请输入要保护的PID\n");
-	//	scanf_s("%d", &Pid);
-	//	printf("你输入的的PID为：%d\n", Pid);
-	//	system("pause");
+		/*	printf("开始读内存\n");
 
-	//	DeviceIoControl(hdevice, BOBH_PROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
-	//	printf("保护进程完成\n");
-	//	system("pause");
+			system("pause");*/
 
-	//	printf("关闭保护进程\n");
-	//	DeviceIoControl(hdevice, BOBH_UNPROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
-	//	printf("关闭进程完成\n");
-	//	system("pause");
-	//}
-	//
-	//
-
-	///*DeviceIoControl(hdevice, BOBH_UNPROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);*/
-	////{
-
-	////	UModuleBase iostruct = { 0 };
-
-	////	ULONG Pid = 0;
-
-	////	printf("输入目标进程PID\n");
-
-	////	scanf_s("%d", &Pid);
-
-	////	iostruct.Pid = Pid;
-
-	////	printf("输入目标进程Dll模块名称\n");
+		DeviceIoControl(hdevice, BOBH_READ, &appBuffer, sizeof(appBuffer), &appBuffer, sizeof(appBuffer), &Count, NULL);
 
 
-	////	string a;
-	////	cin >> a;
-	////	wstring b = s2ws(a);
+		printf("读到的数据为 = %d\n", appBuffer.Buffer);
 
-	////	/*cout << "普通字符串为" << &b[0] << endl;
 
-	////	cout <<"普通字符串为" << a << endl;
+		system("pause");
 
-	////	wcout << L"宽字符为" << b << endl;*/
+		printf("开始写内存\n");
 
-	////	system("pause");
-	////	//这里的宽字符太傻逼了
-	////	//KERNELBASE.DLL
+		printf("请输入写地址：\n");
+		scanf_s("%llx", &address);
+	/*	printf("你输入的地址是 %llx\n", address);*/
+		appBuffer.Address = address;
 
-	////	RtlCopyMemory(iostruct.ModuleName, b.c_str(), b.size()*2);
+		printf("请输入写的多少：\n");
+		scanf_s("%d", &appBuffer.Buffer);
 
-	////	DWORD Count = 0;
-	////	ULONG64 dllbase = 0;
-	////	DeviceIoControl(hdevice, BOBH_GETMODULEADDRESS, &iostruct, sizeof(iostruct), &dllbase, sizeof(dllbase), &Count, NULL);
-	////	printf("Dll base %llx\n", dllbase);
+		appBuffer.size = sizeof(DWORD);
 
-	////	system("pause");
-	////}
+		system("pause");
 
-	///*{
-	//	MYCHAR mychar = { 0 };
-	//	printf("开始枚举进程\n");
-	//	DWORD ret = 0, dwrite = 0;
-	//	char a[] = "";
-	//	printf("请输入进程名称\n");
-	//	scanf_s("%s", a);
-	//	printf("你输入的是%s", a);
-	//	system("pause");
-	//	RtlCopyMemory(mychar._char, a, strlen(a));
+		DeviceIoControl(hdevice, BOBH_WRITE, &appBuffer, sizeof(appBuffer), &appBuffer, sizeof(appBuffer), &Count, NULL);
 
-	//	DeviceIoControl(hdevice, BOBH_GETPROCESSID, &mychar, sizeof(mychar), &ret, sizeof(ret), &dwrite, NULL);
+		printf("写之后变量的地址为%x,变量的值为%d\n", &bianliang, bianliang);
+		system("pause");
 
-	//	printf("枚举进程完毕\n");
+	}
+	goto GO_St;
 
-	//	printf("得到%s进程的Pid为%d\n", mychar._char, ret);
-	//	system("pause");
-	//}*/
-	//
+GO_4:
+	printf("\n\n\n");
+	printf("开始保护进程:\n");
+	{
+		DWORD Pid, Count;
+
+	/*	printf("开始保护进程\n");*/
+
+		printf("请输入要保护的PID:\n");
+		scanf_s("%d", &Pid);
+		/*	printf("你输入的的PID为：%d\n", Pid);
+			system("pause");*/
+
+		DeviceIoControl(hdevice, BOBH_PROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+		printf("保护进程完成\n");
+		system("pause");
+
+		/*printf("关闭保护进程\n");*/
+		DeviceIoControl(hdevice, BOBH_UNPROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+		printf("关闭进程成功\n");
+		system("pause");
+	}
+	goto GO_St;
+
+
+
+GO_2:
+	printf("\n\n\n");
+	printf("开始读取进程模块地址:\n");
+	
+	{
+		UModuleBase iostruct = { 0 };
+
+		ULONG Pid = 0;
+
+		printf("输入目标进程PID:\n");
+
+		scanf_s("%d", &Pid);
+
+		iostruct.Pid = Pid;
+
+		printf("输入目标进程Dll模块名称:\n");
+
+
+		string a;
+		cin >> a;
+		wstring b = s2ws(a);
+
+		/*cout << "普通字符串为" << &b[0] << endl;
+
+		cout <<"普通字符串为" << a << endl;
+
+		wcout << L"宽字符为" << b << endl;*/
+
+		system("pause");
+		//这里的宽字符太傻逼了
+		//KERNELBASE.DLL
+
+		RtlCopyMemory(iostruct.ModuleName, b.c_str(), b.size()*2);
+
+		DWORD Count = 0;
+		ULONG64 dllbase = 0;
+		DeviceIoControl(hdevice, BOBH_GETMODULEADDRESS, &iostruct, sizeof(iostruct), &dllbase, sizeof(dllbase), &Count, NULL);
+		std::cout << a;
+		printf(" Dll base %llx\n", dllbase);
+
+		system("pause");
+	}
+	goto GO_St;
+
+GO_3:
+	printf("\n\n\n");
+	printf("开始通过名称得到进程PID:\n");
+	{
+		MYCHAR mychar = { 0 };
+		printf("开始枚举进程\n");
+		DWORD ret = 0, dwrite = 0;
+		std::string a;
+		printf("请输入进程名称:\n");
+		std::cin >> a;
+	/*	std::cout << "你输入的是："<< a << std::endl;*/
+		system("pause");
+		RtlCopyMemory(mychar._char, a.c_str(),a.size());
+
+		DeviceIoControl(hdevice, BOBH_GETPROCESSID, &mychar, sizeof(mychar), &ret, sizeof(ret), &dwrite, NULL);
+
+		printf("枚举进程完毕\n");
+
+		printf("得到%s进程的Pid为%d\n", mychar._char, ret);
+		system("pause");
+	}
+	
 	//CloseHandle(hdevice);
 	return 0;
 }
