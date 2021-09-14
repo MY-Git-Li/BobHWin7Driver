@@ -105,6 +105,7 @@ GO_St:
 
 	printf("\n\n\n请输入功能：\n");
 	printf("1.读写进程内存地址数据\n2.读取进程模块地址\n3.通过名称得到进程PID\n4.保护进程\n");
+	printf("5.杀死进程（简单方式）\n6.杀死进程（复杂方式）\n");
 	int i;
 	scanf_s("%d", &i);
 	switch (i)
@@ -124,6 +125,12 @@ GO_St:
 		break;
 	case 4:
 		goto GO_4;
+		break;
+	case 5:
+		goto GO_5;
+		break;
+	case 6:
+		goto GO_6;
 		break;
 	}
 
@@ -287,6 +294,48 @@ GO_3:
 		system("pause");
 	}
 	
+GO_5:
+	printf("\n\n\n");
+	printf("开始简单杀死进程:\n");
+	{
+		DWORD Pid, Count;
+
+		/*	printf("开始保护进程\n");*/
+
+		printf("请输入要杀死的进程PID:\n");
+		scanf_s("%d", &Pid);
+		/*	printf("你输入的的PID为：%d\n", Pid);
+			system("pause");*/
+
+		DeviceIoControl(hdevice, BOBH_KILLPROCESS_DIRECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+		printf("杀死进程完成\n");
+		system("pause");
+
+	}
+	goto GO_St;
+
+GO_6:
+	printf("\n\n\n");
+	printf("开始复杂杀死进程:\n");
+	{
+		DWORD Pid, Count;
+
+		/*	printf("开始保护进程\n");*/
+
+		printf("请输入要杀死的进程PID:\n");
+		scanf_s("%d", &Pid);
+		/*	printf("你输入的的PID为：%d\n", Pid);
+			system("pause");*/
+
+		DeviceIoControl(hdevice, BOBH_KILLPROCESS_MEMORY, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+		printf("杀死进程完成\n");
+		system("pause");
+
+	}
+	goto GO_St;
+
+
+
 	//CloseHandle(hdevice);
 	return 0;
 }
