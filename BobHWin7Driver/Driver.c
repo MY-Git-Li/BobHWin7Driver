@@ -3,6 +3,7 @@
 #include "SSDT.h"
 #include "HookElxp.h"
 #include "LDE64x64.h"
+#include "ForceDelete.h"
 
 //得到系统版本号
 VOID GetVersion()
@@ -257,6 +258,17 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 	/*KdPrint(("开始测试隐藏进程"));
 	HideProcess(1896);*/
 
+	KdPrint(("开始测试删除文件"));
+
+	char a[50] = "\\??\\C:\\Users\\Adminis\\Desktop\\Test.exe";
+	STRING a_ansi = { 0 };
+	UNICODE_STRING a_unicode = { 0 };
+
+	RtlInitString(&a_ansi, a);
+	RtlAnsiStringToUnicodeString(&a_unicode, &a_ansi, TRUE);
+
+
+	Delete_File_Mode1(a_unicode);
 
 
 	return status;

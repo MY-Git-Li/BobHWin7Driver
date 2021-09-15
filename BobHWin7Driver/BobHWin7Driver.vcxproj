@@ -173,6 +173,7 @@
   <ItemGroup>
     <ClCompile Include="DeiverDefFun.c" />
     <ClCompile Include="Driver.c" />
+    <ClCompile Include="ForceDelete.c" />
     <ClCompile Include="GlobalVariables.c" />
     <ClCompile Include="HOOK.c" />
     <ClCompile Include="HookElxp.c" />
@@ -182,6 +183,7 @@
   <ItemGroup>
     <ClInclude Include="DeiverDefFun.h" />
     <ClInclude Include="Driverdef.h" />
+    <ClInclude Include="ForceDelete.h" />
     <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="HOOK.h" />
     <ClInclude Include="HookElxp.h" />

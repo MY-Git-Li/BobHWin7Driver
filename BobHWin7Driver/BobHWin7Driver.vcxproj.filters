@@ -40,6 +40,9 @@
     <ClCompile Include="MyHook.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ForceDelete.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Driverdef.h">
@@ -70,6 +73,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MyHead.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ForceDelete.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
