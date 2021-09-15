@@ -179,19 +179,16 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 
 		RtlInitString(&a_ansi, path);
 		RtlAnsiStringToUnicodeString(&a_unicode, &a_ansi, TRUE);
-
-
+		
 		if (Delete_File_Mode1(a_unicode))
 		{
-			KdPrint(("文件路径为:%s --- 删除成功", path));
 			status = STATUS_SUCCESS;
 		}
 		else
 		{
-			KdPrint(("文件路径为:%s --- 删除失败", path));
 			status = STATUS_UNSUCCESSFUL;
 		}
-		
+		KdPrint(("文件路径为:%s 执行操作完成", path));
 		break;
 	}
 
