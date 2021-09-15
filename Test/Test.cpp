@@ -29,11 +29,6 @@ struct r3Buffer {
 	ULONG64 Buffer;
 	ULONG64 size;
 }appBuffer;
-typedef struct _MyCHAR
-{
-	CHAR _char[100];
-}MYCHAR, * PMyCHAR;
-
 
 
 string ws2s(const wstring& ws)
@@ -104,7 +99,7 @@ int main()
 GO_St:
 
 	printf("\n\n\n请输入功能：\n");
-	printf("1.读写进程内存地址数据\n2.读取进程模块地址\n3.通过名称得到进程PID\n4.保护进程\n");
+	printf("0.安全退出\n1.读写进程内存地址数据\n2.读取进程模块地址\n3.通过名称得到进程PID\n4.保护进程\n");
 	printf("5.杀死进程（简单方式）\n6.杀死进程（复杂方式）\n");
 	int i;
 	scanf_s("%d", &i);
@@ -131,6 +126,9 @@ GO_St:
 		break;
 	case 6:
 		goto GO_6;
+		break;
+	case 0:
+		goto GO_END;
 		break;
 	}
 
@@ -276,24 +274,23 @@ GO_3:
 	printf("\n\n\n");
 	printf("开始通过名称得到进程PID:\n");
 	{
-		MYCHAR mychar = { 0 };
+	
 		printf("开始枚举进程\n");
 		DWORD ret = 0, dwrite = 0;
 		std::string a;
 		printf("请输入进程名称:\n");
 		std::cin >> a;
 	/*	std::cout << "你输入的是："<< a << std::endl;*/
-		system("pause");
-		RtlCopyMemory(mychar._char, a.c_str(),a.size());
-
-		DeviceIoControl(hdevice, BOBH_GETPROCESSID, &mychar, sizeof(mychar), &ret, sizeof(ret), &dwrite, NULL);
-
+		
+		/*DeviceIoControl(hdevice, BOBH_GETPROCESSID, &mychar, sizeof(mychar), &ret, sizeof(ret), &dwrite, NULL);*/
+		DeviceIoControl(hdevice, BOBH_GETPROCESSID, (LPVOID)a.c_str(), a.size(), &ret, sizeof(ret), &dwrite, NULL);
 		printf("枚举进程完毕\n");
 
-		printf("得到%s进程的Pid为%d\n", mychar._char, ret);
+		printf("得到%s进程的Pid为%d\n", a.c_str(), ret);
 		system("pause");
 	}
-	
+	goto GO_St;
+
 GO_5:
 	printf("\n\n\n");
 	printf("开始简单杀死进程:\n");
@@ -335,8 +332,8 @@ GO_6:
 	goto GO_St;
 
 
-
-	//CloseHandle(hdevice);
+GO_END:
+	CloseHandle(hdevice);
 	return 0;
 }
 

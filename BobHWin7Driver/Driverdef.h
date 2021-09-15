@@ -28,8 +28,3 @@ typedef struct ModuleBase
 	ULONG Pid;
 	WCHAR ModuleName[100];
 }UModuleBase, * LPModuleBase;
-
-typedef struct _MyCHAR
-{
-	CHAR _char[100];
-}MYCHAR, * PMYCHAR;

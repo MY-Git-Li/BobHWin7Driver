@@ -124,15 +124,15 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	case BOBH_GETPROCESSID:
 	{
 
-
-		PMYCHAR a = (PMYCHAR)buffer;
+		PUCHAR a = ExAllocatePool(NonPagedPool,uInSize);
+	
+		RtlCopyMemory(a, buffer, uInSize);
 
 		STRING process = { 0 };
 
-
-		RtlInitString(&process, a->_char);
-		KdPrint(("process %s \r\n", process));
-
+		RtlInitString(&process, a);
+		KdPrint(("process %Z \r\n", process));
+		
 
 		DWORD pid = 0;
 		pid = GetPidByEnumProcess(process);
@@ -146,6 +146,9 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 		{
 			status = STATUS_UNSUCCESSFUL;
 		}
+
+		ExFreePool(a);
+
 		break;
 	}
 	default:
@@ -194,45 +197,45 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) 
 
 	GetVersion();
 
-	KdPrint(("开始HOOK"));
+	//KdPrint(("开始HOOK"));
 
-	LDE_init();
+	//LDE_init();
 
-	PSYSTEM_SERVICE_TABLE service = GetSystemServiceTable_Generalmethod(DriverObject);
+	//PSYSTEM_SERVICE_TABLE service = GetSystemServiceTable_Generalmethod(DriverObject);
 
-	
-	SSDT_OpenProcess = GetSSDTAddr(service, GetSSDTFunIndex("NtOpenProcess"));
+	//
+	//SSDT_OpenProcess = GetSSDTAddr(service, GetSSDTFunIndex("NtOpenProcess"));
 
-	Head_OpenProcess = GetPatchSize(SSDT_OpenProcess);
+	//Head_OpenProcess = GetPatchSize(SSDT_OpenProcess);
 
-	KdPrint(("NtOpenProcess head--<%d>",Head_OpenProcess));
+	//KdPrint(("NtOpenProcess head--<%d>",Head_OpenProcess));
 
-	StartHOOK((UINT64)SSDT_OpenProcess, (UINT64)&MyOpenProcess,/*(20)*/(USHORT)Head_OpenProcess, &S_OpenProcess);
-
-
-
-
-	SSDT_ReadVirtualMemory = GetSSDTAddr(service, GetSSDTFunIndex("NtReadVirtualMemory"));
-
-	Head_ReadVirtualMemory = GetPatchSize(SSDT_ReadVirtualMemory);
-
-	KdPrint(("NtReadVirtualMemory head--<%d>", Head_ReadVirtualMemory));
-
-	StartHOOK((UINT64)SSDT_ReadVirtualMemory, (UINT64)&MyReadVirtualMemory, /*(15)*/(USHORT)Head_ReadVirtualMemory, &S_ReadVirtualMemory);
+	//StartHOOK((UINT64)SSDT_OpenProcess, (UINT64)&MyOpenProcess,/*(20)*/(USHORT)Head_OpenProcess, &S_OpenProcess);
 
 
 
 
-	SSDT_WriteVirtualMemory = GetSSDTAddr(service, GetSSDTFunIndex("NtWriteVirtualMemory"));
+	//SSDT_ReadVirtualMemory = GetSSDTAddr(service, GetSSDTFunIndex("NtReadVirtualMemory"));
 
-	Head_WriteVirtualMemory = GetPatchSize(SSDT_WriteVirtualMemory);
+	//Head_ReadVirtualMemory = GetPatchSize(SSDT_ReadVirtualMemory);
 
-	KdPrint(("NtWriteVirtualMemory head--<%d>", Head_WriteVirtualMemory));
+	//KdPrint(("NtReadVirtualMemory head--<%d>", Head_ReadVirtualMemory));
 
-	StartHOOK((UINT64)SSDT_WriteVirtualMemory, (UINT64)&MyWriteVirtualMemory,(USHORT)Head_WriteVirtualMemory, &S_WriteVirtualMemory);
+	//StartHOOK((UINT64)SSDT_ReadVirtualMemory, (UINT64)&MyReadVirtualMemory, /*(15)*/(USHORT)Head_ReadVirtualMemory, &S_ReadVirtualMemory);
 
 
-	KdPrint(("HOOK完成"));
+
+
+	//SSDT_WriteVirtualMemory = GetSSDTAddr(service, GetSSDTFunIndex("NtWriteVirtualMemory"));
+
+	//Head_WriteVirtualMemory = GetPatchSize(SSDT_WriteVirtualMemory);
+
+	//KdPrint(("NtWriteVirtualMemory head--<%d>", Head_WriteVirtualMemory));
+
+	//StartHOOK((UINT64)SSDT_WriteVirtualMemory, (UINT64)&MyWriteVirtualMemory,(USHORT)Head_WriteVirtualMemory, &S_WriteVirtualMemory);
+
+
+	//KdPrint(("HOOK完成"));
 
 
 	/*KdPrint(("开始测试隐藏进程"));
@@ -249,16 +252,16 @@ VOID Unload(PDRIVER_OBJECT DriverObject) {
 	}
 	
 
-	RecoveryHOOK(SSDT_ReadVirtualMemory, /*15*/Head_ReadVirtualMemory, S_ReadVirtualMemory);
+	//RecoveryHOOK(SSDT_ReadVirtualMemory, /*15*/Head_ReadVirtualMemory, S_ReadVirtualMemory);
 
-	RecoveryHOOK(SSDT_OpenProcess,/* 20*/Head_OpenProcess, S_OpenProcess);
+	//RecoveryHOOK(SSDT_OpenProcess,/* 20*/Head_OpenProcess, S_OpenProcess);
 
-	RecoveryHOOK(SSDT_WriteVirtualMemory, Head_WriteVirtualMemory, S_WriteVirtualMemory);
+	//RecoveryHOOK(SSDT_WriteVirtualMemory, Head_WriteVirtualMemory, S_WriteVirtualMemory);
 
 	IoDeleteSymbolicLink(&symLinkName);
 	IoDeleteDevice(DeviceObject);
 
-	LDE_End();
+	/*LDE_End();*/
 	KdPrint(("[BobHWin7]成功卸载驱动 \r\n"));
 }
 
