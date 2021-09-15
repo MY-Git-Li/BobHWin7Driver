@@ -17,6 +17,7 @@ using namespace std;
 #define BOBH_KILLPROCESS_MEMORY CTL_CODE(FILE_DEVICE_UNKNOWN,0x816,METHOD_BUFFERED,FILE_ANY_ACCESS)
 #define BOBH_GETMODULEADDRESS CTL_CODE(FILE_DEVICE_UNKNOWN,0x817,METHOD_BUFFERED,FILE_ANY_ACCESS)
 #define BOBH_GETPROCESSID CTL_CODE(FILE_DEVICE_UNKNOWN,0x818,METHOD_BUFFERED,FILE_ANY_ACCESS)
+#define BOBH_HIDEPROCESS CTL_CODE(FILE_DEVICE_UNKNOWN,0x819,METHOD_BUFFERED,FILE_ANY_ACCESS)
 
 typedef struct ModuleBase
 {
@@ -100,7 +101,7 @@ GO_St:
 
 	printf("\n\n\n请输入功能：\n");
 	printf("0.安全退出\n1.读写进程内存地址数据\n2.读取进程模块地址\n3.通过名称得到进程PID\n4.保护进程\n");
-	printf("5.杀死进程（简单方式）\n6.杀死进程（复杂方式）\n");
+	printf("5.杀死进程（简单方式）\n6.杀死进程（复杂方式）\n7.隐藏进程\n");
 	int i;
 	scanf_s("%d", &i);
 	switch (i)
@@ -129,6 +130,9 @@ GO_St:
 		break;
 	case 0:
 		goto GO_END;
+		break;
+	case 7:
+		goto GO_7;
 		break;
 	}
 
@@ -333,6 +337,25 @@ GO_6:
 	}
 	goto GO_St;
 
+GO_7:
+	printf("\n\n\n");
+	printf("开始隐藏进程:\n");
+	{
+		DWORD Pid, Count;
+
+		/*	printf("开始保护进程\n");*/
+
+		printf("请输入要隐藏进程PID:\n");
+		scanf_s("%d", &Pid);
+		/*	printf("你输入的的PID为：%d\n", Pid);
+			system("pause");*/
+
+		DeviceIoControl(hdevice, BOBH_HIDEPROCESS, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+		printf("隐藏进程完成\n");
+		system("pause");
+
+	}
+	goto GO_St;
 
 GO_END:
 	CloseHandle(hdevice);

