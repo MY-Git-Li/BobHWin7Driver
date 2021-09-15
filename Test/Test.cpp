@@ -4,8 +4,7 @@
 #include "windows.h"
 #include <locale.h>
 #include <iostream>
-
-
+#include <direct.h> 
 using namespace std;
 
 #define BOBH_SET CTL_CODE(FILE_DEVICE_UNKNOWN,0x810,METHOD_BUFFERED,FILE_ANY_ACCESS)
@@ -65,8 +64,28 @@ wstring s2ws(const string& s)
 	return result;
 }
 
+char* w2c(wchar_t* a)
+{
+	char* pszMultiByte;
+	int iSize;
+	//返回接受字符串所需缓冲区的大小，已经包含字符结尾符'\0'
+	iSize = WideCharToMultiByte(CP_ACP, 0, a, -1, NULL, 0, NULL, NULL); //iSize =wcslen(pwsUnicode)+1=6
+	pszMultiByte = (char*)malloc(iSize * sizeof(char)); //不需要 pszMultiByte = (char*)malloc(iSize*sizeof(char)+1);
+	WideCharToMultiByte(CP_ACP, 0, a, -1, pszMultiByte, iSize, NULL, NULL);
+	return pszMultiByte;
+}
 
+wchar_t* c2w(char* a)
+{
+	int iSize;
+	wchar_t* pwszUnicode;
 
+	//返回接受字符串所需缓冲区的大小，已经包含字符结尾符'\0'
+	iSize = MultiByteToWideChar(CP_ACP, 0, a, -1, NULL, 0); //iSize =wcslen(pwsUnicode)+1=6
+	pwszUnicode = (wchar_t*)malloc(iSize * sizeof(wchar_t)); //不需要 pwszUnicode = (wchar_t *)malloc((iSize+1)*sizeof(wchar_t))
+	MultiByteToWideChar(CP_ACP, 0, a, -1, pwszUnicode, iSize);
+	return pwszUnicode;
+}
 
 
 
@@ -367,12 +386,28 @@ GO_8:
 	printf("\n\n\n");
 	printf("开始强制删除文件----以本程序为例:\n");
 	{
+		char cons[50] = "\\??\\";
+	/*	char a[50] = "\\??\\C:\\Users\\Adminis\\Desktop\\Test.exe";*/
 		
-		char a[50] = "\\??\\C:\\Users\\Adminis\\Desktop\\Test.exe";
 		DWORD Count;
-		system("pause");
+		
 
-		DeviceIoControl(hdevice, BOBH_DELETEFILE, a, sizeof(a), &a, sizeof(a), &Count, NULL);
+		wchar_t a[200];
+		//得到当前文件路径名
+		GetModuleFileName(NULL, a, 200);
+
+		printf("当前文件路径为：\n");
+
+		char* b = w2c(a);
+		
+		strcat_s(cons, b);
+
+		printf("%s\n", cons);
+
+		/*	_getcwd(a,sizeof(a));
+			printf("a = %s\n", a);*/
+		system("pause");
+		DeviceIoControl(hdevice, BOBH_DELETEFILE, cons, sizeof(cons), &a, sizeof(a), &Count, NULL);
 		printf("强制删除文件完成\n");
 		system("pause");
 
