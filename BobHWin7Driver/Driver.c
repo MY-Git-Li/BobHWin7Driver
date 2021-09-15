@@ -267,10 +267,12 @@ VOID Unload(PDRIVER_OBJECT DriverObject) {
 
 	//RecoveryHOOK(SSDT_WriteVirtualMemory, Head_WriteVirtualMemory, S_WriteVirtualMemory);
 
+	/*LDE_End();*/
+
 	IoDeleteSymbolicLink(&symLinkName);
 	IoDeleteDevice(DeviceObject);
 
-	/*LDE_End();*/
+	
 	KdPrint(("[BobHWin7]³É¹¦Ð¶ÔØÇý¶¯ \r\n"));
 }
 
