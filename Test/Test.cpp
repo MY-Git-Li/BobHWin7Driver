@@ -21,7 +21,7 @@ using namespace std;
 typedef struct ModuleBase
 {
 	ULONG Pid;
-	WCHAR ModuleName[100];
+	CHAR ModuleName[100];
 }UModuleBase, * LPModuleBase;
 
 struct r3Buffer {
@@ -37,7 +37,7 @@ string ws2s(const wstring& ws)
 	setlocale(LC_ALL, "chs");
 	const wchar_t* wcs = ws.c_str();
 	size_t dByteNum = sizeof(wchar_t) * ws.size() + 1;
-	cout << "ws.size():" << ws.size() << endl;      //5：宽字符串L"ABC我们"有5个自然字符
+	//cout << "ws.size():" << ws.size() << endl;      //5：宽字符串L"ABC我们"有5个自然字符
 
 	char* dest = new char[dByteNum];
 	wcstombs_s(NULL, dest, dByteNum, wcs, _TRUNCATE);
@@ -53,7 +53,7 @@ wstring s2ws(const string& s)
 	setlocale(LC_ALL, "chs");
 	const char* source = s.c_str();
 	size_t charNum = s.size() + 1;
-	cout << "s.size():" << s.size() << endl;         //7：多字节字符串"ABC我们"有7个字节
+	//cout << "s.size():" << s.size() << endl;         //7：多字节字符串"ABC我们"有7个字节
 
 	wchar_t* dest = new wchar_t[charNum];
 	mbstowcs_s(NULL, dest, charNum, source, _TRUNCATE);
@@ -254,11 +254,13 @@ GO_2:
 
 		wcout << L"宽字符为" << b << endl;*/
 
-		system("pause");
+	/*	system("pause");*/
 		//这里的宽字符太傻逼了
 		//KERNELBASE.DLL
 
-		RtlCopyMemory(iostruct.ModuleName, b.c_str(), b.size()*2);
+		/*RtlCopyMemory(iostruct.ModuleName, b.c_str(), b.size()*2);*/
+
+		RtlCopyMemory(iostruct.ModuleName, a.c_str(), a.size());
 
 		DWORD Count = 0;
 		ULONG64 dllbase = 0;

@@ -109,9 +109,18 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 			break;
 		}
 
+		STRING moudlenname_ansi = { 0 };
+
 		UNICODE_STRING moudlename = { 0 };
 		ULONGLONG outdllbase = 0;
-		RtlInitUnicodeString(&moudlename, TempBase->ModuleName);
+
+
+		RtlInitString(&moudlenname_ansi, TempBase->ModuleName);
+
+		RtlAnsiStringToUnicodeString(&moudlename, &moudlenname_ansi, TRUE);
+		
+
+		/*RtlInitUnicodeString(&moudlename, TempBase->ModuleName);*/
 		KdPrint(("ҪѰ�ҵ�moudlenameΪ%wZ \r\n", moudlename));
 
 		outdllbase = KeGetMoudleAddress(TempBase->Pid, &moudlename);
