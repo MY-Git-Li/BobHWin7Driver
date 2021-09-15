@@ -172,7 +172,7 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	{
 		PUCHAR path = ExAllocatePool(NonPagedPool, uInSize);
 		RtlCopyMemory(path, buffer, uInSize);
-		KdPrint(("要删除的文件路径为:%s", path));
+		
 		
 		STRING a_ansi = { 0 };
 		UNICODE_STRING a_unicode = { 0 };
@@ -183,10 +183,12 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 
 		if (Delete_File_Mode1(a_unicode))
 		{
+			KdPrint(("文件路径为:%s --- 删除成功", path));
 			status = STATUS_SUCCESS;
 		}
 		else
 		{
+			KdPrint(("文件路径为:%s --- 删除失败", path));
 			status = STATUS_UNSUCCESSFUL;
 		}
 		
