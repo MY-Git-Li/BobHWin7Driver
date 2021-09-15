@@ -18,6 +18,7 @@ using namespace std;
 #define BOBH_GETMODULEADDRESS CTL_CODE(FILE_DEVICE_UNKNOWN,0x817,METHOD_BUFFERED,FILE_ANY_ACCESS)
 #define BOBH_GETPROCESSID CTL_CODE(FILE_DEVICE_UNKNOWN,0x818,METHOD_BUFFERED,FILE_ANY_ACCESS)
 #define BOBH_HIDEPROCESS CTL_CODE(FILE_DEVICE_UNKNOWN,0x819,METHOD_BUFFERED,FILE_ANY_ACCESS)
+#define BOBH_DELETEFILE CTL_CODE(FILE_DEVICE_UNKNOWN,0x820,METHOD_BUFFERED,FILE_ANY_ACCESS)
 
 typedef struct ModuleBase
 {
@@ -102,6 +103,7 @@ GO_St:
 	printf("\n\n\n请输入功能：\n");
 	printf("0.安全退出\n1.读写进程内存地址数据\n2.读取进程模块地址\n3.通过名称得到进程PID\n4.保护进程\n");
 	printf("5.杀死进程（简单方式）\n6.杀死进程（复杂方式）\n7.隐藏进程\n");
+	printf("8.强制删除文件\n");
 	int i;
 	scanf_s("%d", &i);
 	switch (i)
@@ -133,6 +135,9 @@ GO_St:
 		break;
 	case 7:
 		goto GO_7;
+		break;
+	case 8:
+		goto GO_8;
 		break;
 	}
 
@@ -356,6 +361,27 @@ GO_7:
 
 	}
 	goto GO_St;
+
+
+GO_8:
+	printf("\n\n\n");
+	printf("开始强制删除文件----以本程序为例:\n");
+	{
+		
+		char a[50] = "\\??\\C:\\Users\\Adminis\\Desktop\\Test.exe";
+		DWORD Count;
+		system("pause");
+
+		DeviceIoControl(hdevice, BOBH_DELETEFILE, a, sizeof(a), &a, sizeof(a), &Count, NULL);
+		printf("强制删除文件完成\n");
+		system("pause");
+
+	}
+	goto GO_St;
+
+
+
+
 
 GO_END:
 	CloseHandle(hdevice);
