@@ -339,10 +339,10 @@ ULONGLONG KeGetMoudleAddress(_In_ ULONG pid, _In_ PUNICODE_STRING name)
 
 				if (RtlCompareUnicodeString(&nowMoudlename, name, TRUE) == 0) {
 
-					dllbaseaddr = pLdrDataEntry32->DllBase;
+					dllbaseaddr = (ULONGLONG)pLdrDataEntry32->DllBase;
 
 					KdPrint(("’“µΩ¡À£°"));
-					KdPrint(("DllBase %x", dllbaseaddr));
+					KdPrint(("DllBase %llx", dllbaseaddr));
 					break;
 				}
 
