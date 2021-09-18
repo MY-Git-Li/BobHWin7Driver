@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BobHWin7Driver", "BobHWin7D
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj", "{807BE6A9-DBCB-4EDB-A177-AC0E3C8661D5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BobHWinDriverDll", "BobHWinDriverDll\BobHWinDriverDll.vcxproj", "{29B576D3-72D9-47A9-948C-CBB2C3C5450F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -55,6 +57,18 @@ Global
 		{807BE6A9-DBCB-4EDB-A177-AC0E3C8661D5}.Release|x64.Build.0 = Release|x64
 		{807BE6A9-DBCB-4EDB-A177-AC0E3C8661D5}.Release|x86.ActiveCfg = Release|Win32
 		{807BE6A9-DBCB-4EDB-A177-AC0E3C8661D5}.Release|x86.Build.0 = Release|Win32
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Debug|ARM.ActiveCfg = Debug|Win32
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Debug|ARM64.ActiveCfg = Debug|Win32
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Debug|x64.ActiveCfg = Debug|x64
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Debug|x64.Build.0 = Debug|x64
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Debug|x86.ActiveCfg = Debug|Win32
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Debug|x86.Build.0 = Debug|Win32
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Release|ARM.ActiveCfg = Release|Win32
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Release|ARM64.ActiveCfg = Release|Win32
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Release|x64.ActiveCfg = Release|x64
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Release|x64.Build.0 = Release|x64
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Release|x86.ActiveCfg = Release|Win32
+		{29B576D3-72D9-47A9-948C-CBB2C3C5450F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
