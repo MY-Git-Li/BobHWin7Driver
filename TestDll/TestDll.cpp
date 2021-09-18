@@ -24,6 +24,7 @@ int main()
 	if (!InitDriver())
 	{
 		printf("打开设备失败\n");
+		return 0;
 	}
 	printf("打开设备成功\n");
 
