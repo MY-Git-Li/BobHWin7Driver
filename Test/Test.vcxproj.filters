@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Test.cpp">
+    <ClCompile Include="TestDriver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
