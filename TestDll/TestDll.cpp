@@ -70,10 +70,6 @@ bool AdjustPrivileges() {
 }
 int main()
 {
-	if (AdjustPrivileges()==false)
-	{
-		return 0;
-	}
 
 	if (!InitDriver())
 	{
