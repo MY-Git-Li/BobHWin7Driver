@@ -35,10 +35,34 @@ void dtoc(double dvalue, unsigned char* arr)
 	}
 }
 
-double ByteToDoubles(unsigned char* byteArray)
+double ByteToDouble(unsigned char* byteArray)
 {
 	return *((double*)byteArray);
 }
+
+extern "C" __declspec(dllexport) char* w2c(wchar_t* a)
+{
+	char* pszMultiByte;
+	int iSize;
+	//返回接受字符串所需缓冲区的大小，已经包含字符结尾符'\0'
+	iSize = WideCharToMultiByte(CP_ACP, 0, a, -1, NULL, 0, NULL, NULL); //iSize =wcslen(pwsUnicode)+1=6
+	pszMultiByte = (char*)malloc(iSize * sizeof(char)); //不需要 pszMultiByte = (char*)malloc(iSize*sizeof(char)+1);
+	WideCharToMultiByte(CP_ACP, 0, a, -1, pszMultiByte, iSize, NULL, NULL);
+	return pszMultiByte;
+}
+
+extern "C" __declspec(dllexport) wchar_t* c2w(char* a)
+{
+	int iSize;
+	wchar_t* pwszUnicode;
+
+	//返回接受字符串所需缓冲区的大小，已经包含字符结尾符'\0'
+	iSize = MultiByteToWideChar(CP_ACP, 0, a, -1, NULL, 0); //iSize =wcslen(pwsUnicode)+1=6
+	pwszUnicode = (wchar_t*)malloc(iSize * sizeof(wchar_t)); //不需要 pwszUnicode = (wchar_t *)malloc((iSize+1)*sizeof(wchar_t))
+	MultiByteToWideChar(CP_ACP, 0, a, -1, pwszUnicode, iSize);
+	return pwszUnicode;
+}
+
 
 extern "C" __declspec(dllexport) bool InitDriver()
 {

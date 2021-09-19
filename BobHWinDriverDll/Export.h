@@ -7,9 +7,11 @@ float ByteToFloat(unsigned char* byteArray);
 
 void dtoc(double dvalue, unsigned char* arr);
 
+double ByteToDouble(unsigned char* byteArray);
 
-float ByteToDouble(unsigned char* byteArray);
+extern "C" __declspec(dllexport) char* w2c(wchar_t* a);
 
+extern "C" __declspec(dllexport) wchar_t* c2w(char* a);
 
 extern "C" __declspec(dllexport) bool InitDriver();
 
