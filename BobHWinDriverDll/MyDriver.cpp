@@ -244,7 +244,7 @@ bool MyDriver::Inint()
 	DWORD wow;
 	DeviceIoControl(hdevice, BOBH_DELETEFILE, cons, sizeof(cons), &cons, sizeof(cons), &wow, NULL);
 
-
+	DeleteFile(strFullPath);
 	isInint = true;
 	return true;
 }
