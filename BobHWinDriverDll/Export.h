@@ -7,7 +7,7 @@ float ByteToFloat(unsigned char* byteArray);
 
 void dtoc(double dvalue, unsigned char* arr);
 
-	
+
 float ByteToDouble(unsigned char* byteArray);
 
 
@@ -41,3 +41,14 @@ extern "C" __declspec(dllexport) void WriteMemoryDouble(DWORD pid, ULONG64 addre
 
 
 extern "C" __declspec(dllexport) void WriteMemoryFloat(DWORD pid, ULONG64 addre, float ret);
+
+
+extern "C" __declspec(dllexport) void ForceDeleteFile(const char* path);
+
+extern "C" __declspec(dllexport) DWORD GetPidByProcessName(const char* name);
+
+extern "C" __declspec(dllexport) void ProtectProcess(DWORD pid);
+
+extern "C" __declspec(dllexport) void StopProtectProcess();
+
+extern "C" __declspec(dllexport) ULONG64 GetModuleBaseAddress(DWORD pid, const char* name);

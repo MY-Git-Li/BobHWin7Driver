@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "MyDriver.h"
 #include "releaseHelper.h"
-#include "resource1.h"
+#include "resource.h"
 #pragma comment (lib,"Advapi32.lib")
 #include "iostream"
 
@@ -224,8 +224,8 @@ bool MyDriver::Inint()
 	bool blRes;
 	blRes = releasehelper.FreeResFile(IDR_SYS1, "SYS", "BobHWin7Driver.sys");
 
-	LoadNTDriver(L"BobHWin7Read",L"BobHWin7Driver.sys");
-	
+	LoadNTDriver(L"BobHWin7Read", L"BobHWin7Driver.sys");
+
 
 	hdevice = CreateFile(L"\\\\.\\BobHWin7ReadLink", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hdevice == INVALID_HANDLE_VALUE)
@@ -244,7 +244,57 @@ bool MyDriver::Inint()
 	DWORD wow;
 	DeviceIoControl(hdevice, BOBH_DELETEFILE, cons, sizeof(cons), &cons, sizeof(cons), &wow, NULL);
 
-	
+
 	isInint = true;
 	return true;
+}
+
+void MyDriver::DeleteFile(const char* path)
+{
+	char cons[MAX_DLL_PATH + 7] = "\\??\\";
+
+	strcat_s(cons, path);
+
+	DWORD wow;
+	DeviceIoControl(hdevice, BOBH_DELETEFILE, cons, sizeof(cons), &cons, sizeof(cons), &wow, NULL);
+}
+
+DWORD MyDriver::GetPidByProcessName(const char* name)
+{
+	DWORD ret = 0, dwrite = 0;
+
+	char Name[1024] = { 0 };
+
+	RtlCopyMemory(Name, name, 1024);
+
+	DeviceIoControl(hdevice, BOBH_GETPROCESSID, (LPVOID)Name, sizeof(Name), &ret, sizeof(ret), &dwrite, NULL);
+
+	return ret;
+}
+
+void MyDriver::ProtectProcess(DWORD pid)
+{
+	DWORD Count = 0;
+	DWORD Pid = pid;
+	DeviceIoControl(hdevice, BOBH_PROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+}
+
+void MyDriver::StopProtectProcess()
+{
+	DWORD Pid = 0;
+	DeviceIoControl(hdevice, BOBH_UNPROTECT, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Pid, NULL);
+}
+
+ULONG64 MyDriver::GetModuleBaseAddress(DWORD pid, const char* name)
+{
+	UModuleBase iostruct = { 0 };
+	iostruct.Pid = pid;
+
+	RtlCopyMemory(iostruct.ModuleName, name, 1024);
+
+	DWORD Count = 0;
+	ULONG64 dllbase = 0;
+	DeviceIoControl(hdevice, BOBH_GETMODULEADDRESS, &iostruct, sizeof(iostruct), &dllbase, sizeof(dllbase), &Count, NULL);
+
+	return dllbase;
 }

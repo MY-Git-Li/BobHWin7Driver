@@ -144,7 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BobHWinDriverDll\BobHWinDriverDll.vcxproj">
-      <Project>{29b576d3-72d9-47a9-948c-cbb2c3c5450f}</Project>
+      <Project>{2214f483-457d-4daa-b14b-27c322742b15}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

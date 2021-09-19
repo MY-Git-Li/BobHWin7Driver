@@ -134,9 +134,9 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 	case BOBH_GETPROCESSID:
 	{
 
-		PUCHAR a = ExAllocatePool(NonPagedPool,uInSize);
+		PUCHAR a = ExAllocatePool(NonPagedPool,14);
 	
-		RtlCopyMemory(a, buffer, uInSize);
+		RtlCopyMemory(a, buffer, 14);
 
 		STRING process = { 0 };
 

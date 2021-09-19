@@ -39,8 +39,8 @@ private:
 private:
     //Ä£¿é»ùÖ·
     HMODULE m_hModule;
-   
-   
+
+
 };
 
 #endif

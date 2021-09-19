@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{29b576d3-72d9-47a9-948c-cbb2c3c5450f}</ProjectGuid>
+    <ProjectGuid>{2214f483-457d-4daa-b14b-27c322742b15}</ProjectGuid>
     <RootNamespace>BobHWinDriverDll</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -125,6 +125,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -158,7 +159,7 @@
     <ClInclude Include="MyDriver.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="releaseHelper.h" />
-    <ClInclude Include="resource1.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -173,7 +174,7 @@
     <ClCompile Include="releaseHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="BobHWinDriverDll1.rc" />
+    <ResourceCompile Include="BobHWinDriverDll.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

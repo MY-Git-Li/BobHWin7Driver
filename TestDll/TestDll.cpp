@@ -20,6 +20,27 @@ extern "C" __declspec(dllexport) void WriteMemoryFloat(DWORD pid, ULONG64 addre,
 extern "C" __declspec(dllexport) void ReadMemoryDouble(DWORD pid, ULONG64 addre, double* ret);
 extern "C" __declspec(dllexport) void WriteMemoryDouble(DWORD pid, ULONG64 addre, double ret);
 
+extern "C" __declspec(dllexport) void ForceDeleteFile(const char* path);
+
+extern "C" __declspec(dllexport) DWORD GetPidByProcessName(const char* name);
+
+extern "C" __declspec(dllexport) void ProtectProcess(DWORD pid);
+
+extern "C" __declspec(dllexport) void StopProtectProcess();
+
+extern "C" __declspec(dllexport) ULONG64 GetModuleBaseAddress(DWORD pid, const char* name);
+
+char* w2c(wchar_t* a)
+{
+	char* pszMultiByte;
+	int iSize;
+	//返回接受字符串所需缓冲区的大小，已经包含字符结尾符'\0'
+	iSize = WideCharToMultiByte(CP_ACP, 0, a, -1, NULL, 0, NULL, NULL); //iSize =wcslen(pwsUnicode)+1=6
+	pszMultiByte = (char*)malloc(iSize * sizeof(char)); //不需要 pszMultiByte = (char*)malloc(iSize*sizeof(char)+1);
+	WideCharToMultiByte(CP_ACP, 0, a, -1, pszMultiByte, iSize, NULL, NULL);
+	return pszMultiByte;
+}
+
 int main()
 {
 	if (!InitDriver())
@@ -32,11 +53,56 @@ int main()
 
 	system("pause");
 
+	printf("\n\n\n");
+	printf("开始得到程序的模块地址---非wow64程序（calc.exe）(USER32.dll)为例\n");
+	{
+		ULONG64 address = GetModuleBaseAddress(GetPidByProcessName("calc.exe"), "USER32.dll");
+		printf("address<%llx>\n", address);
+	}
+
+	printf("\n\n\n");
+	printf("开始得到程序的模块地址--wow64程序（DriverMonitor.exe）(USER32.dll)为例\n");
+	{
+		printf("pid<%d>", GetPidByProcessName("DriverMonitor.exe"));
+		ULONG64 address = GetModuleBaseAddress(GetPidByProcessName("DriverMonitor.exe"), "USER32.dll");
+		printf("address<%llx>\n", address);
+	}
 
 
 	/*printf("\n\n\n");
-	printf("开始读取进程内存地址数据(整数):\n");
-	{
+	printf("开始得到程序pid---（calc.exe）为例\n");*/
+	/*{
+		system("pause");
+
+		printf("pid<%d>\n", GetPidByProcessName("calc.exe"));
+	}*/
+
+	//printf("\n\n\n");
+	//printf("开始保护进程（calc.exe）为例\n");
+	/*{
+		system("pause");
+		ProtectProcess(GetPidByProcessName("calc.exe"));
+		printf("保护成功\n");
+		system("pause");
+		StopProtectProcess();
+		printf("解除保护成功\n");
+	}*/
+
+
+	/*printf("\n\n\n");
+	printf("开始强制删除文件---（本程序为例）\n");*/
+	/* {
+	//	system("pause");
+	//	wchar_t a[200];
+	//	//得到当前文件路径名
+	//	GetModuleFileName(NULL, a, 200);
+	//	char* b = w2c(a);
+	//	ForceDeleteFile(b);
+	}*/
+
+	//printf("\n\n\n");
+	//printf("开始读取进程内存地址数据(整数):\n");
+	/*{
 
 		DWORD Pid, data;
 		ULONG64 address = 0;

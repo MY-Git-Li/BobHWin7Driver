@@ -24,16 +24,16 @@
     <ClInclude Include="MyDriver.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="releaseHelper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="Export.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="global.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="resource1.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="releaseHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,15 +47,15 @@
     <ClCompile Include="MyDriver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Export.cpp">
+    <ClCompile Include="releaseHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="releaseHelper.cpp">
+    <ClCompile Include="Export.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="BobHWinDriverDll1.rc">
+    <ResourceCompile Include="BobHWinDriverDll.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
   </ItemGroup>

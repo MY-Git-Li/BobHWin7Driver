@@ -28,5 +28,5 @@ struct r3Buffer {
 typedef struct ModuleBase
 {
 	ULONG Pid;
-	CHAR ModuleName[100];
+	CHAR ModuleName[1024];
 }UModuleBase, * LPModuleBase;

@@ -19,6 +19,11 @@ struct r3Buffer {
 	ULONG64 Buffer;
 	ULONG64 size;
 };
+typedef struct ModuleBase
+{
+	ULONG Pid;
+	CHAR ModuleName[1024];
+}UModuleBase, * LPModuleBase;
 
 class MyDriver
 {
@@ -27,15 +32,25 @@ public:
 	~MyDriver();
 	bool isInint;
 	bool Inint();
-	
+
 	template <typename T>
 	bool Read(DWORD pid, ULONG64 address, T* ret);
 
 	template <typename T>
 	bool Write(DWORD pid, ULONG64 address, T data);
+
+	void DeleteFile(const char* path);
+
+	DWORD GetPidByProcessName(const char* name);
+
+	void ProtectProcess(DWORD pid);
+
+	void StopProtectProcess();
+
+	ULONG64 GetModuleBaseAddress(DWORD pid, const char* name);
 private:
 	HANDLE hdevice;
-	
+
 };
 
 

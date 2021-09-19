@@ -77,16 +77,16 @@ HMODULE CReleaseDLL::GetSelfModuleHandle()
 {
 	try
 	{
-//#ifdef _USER_RELEASEDLL_
-		//如果释放的帮助类定义在DLL中，将调用下面的方式获取基址
-		/*MEMORY_BASIC_INFORMATION mbi;
-		return ((::VirtualQuery(CReleaseDLL::GetSelfModuleHandle, &mbi, sizeof(mbi)) != 0) ? (HMODULE)mbi.AllocationBase : NULL);*/
-//#else
-//		/*如果直接定义在exe本身的代码中*/
-//		return ::GetModuleHandle(NULL);
-//#endif
+		//#ifdef _USER_RELEASEDLL_
+				//如果释放的帮助类定义在DLL中，将调用下面的方式获取基址
+				/*MEMORY_BASIC_INFORMATION mbi;
+				return ((::VirtualQuery(CReleaseDLL::GetSelfModuleHandle, &mbi, sizeof(mbi)) != 0) ? (HMODULE)mbi.AllocationBase : NULL);*/
+				//#else
+				//		/*如果直接定义在exe本身的代码中*/
+				//		return ::GetModuleHandle(NULL);
+				//#endif
 		return GetCurrentModule(false);
-	/*	return ghModule;*/
+		/*	return ghModule;*/
 	}
 	catch (...)
 	{

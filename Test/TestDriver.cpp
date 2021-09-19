@@ -22,7 +22,7 @@ using namespace std;
 typedef struct ModuleBase
 {
 	ULONG Pid;
-	CHAR ModuleName[100];
+	CHAR ModuleName[1024];
 }UModuleBase, * LPModuleBase;
 
 struct r3Buffer {
