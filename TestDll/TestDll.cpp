@@ -4,6 +4,7 @@
 #pragma comment(lib, "BobHWinDriverDll.lib")                                   
 extern "C" __declspec(dllimport) bool InitDriver();
 
+
 extern "C" __declspec(dllimport) void ReadMemoryDWORD(DWORD pid, ULONG64 addre, DWORD * ret);
 extern "C" __declspec(dllimport) void WriteMemoryDWORD(DWORD pid, ULONG64 addre, DWORD ret);
 
@@ -24,15 +25,18 @@ int main()
 	if (!InitDriver())
 	{
 		printf("打开设备失败\n");
+		system("pause");
 		return 0;
 	}
 	printf("打开设备成功\n");
 
+	system("pause");
+
 
 
 	/*printf("\n\n\n");
-	printf("开始读取进程内存地址数据(整数):\n");*/
-	/*{
+	printf("开始读取进程内存地址数据(整数):\n");
+	{
 
 		DWORD Pid, data;
 		ULONG64 address = 0;

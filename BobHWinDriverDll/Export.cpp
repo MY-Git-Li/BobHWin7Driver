@@ -44,6 +44,7 @@ extern "C" __declspec(dllexport) bool InitDriver()
 	return myDriver->Inint();
 }
 
+
 extern "C" __declspec(dllexport) void ReadMemoryDWORD(DWORD pid, ULONG64 addre, DWORD * ret)
 {
 	if (myDriver->isInint)

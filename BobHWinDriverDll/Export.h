@@ -13,7 +13,6 @@ float ByteToDouble(unsigned char* byteArray);
 
 extern "C" __declspec(dllexport) bool InitDriver();
 
-
 extern "C" __declspec(dllexport) void ReadMemoryDWORD(DWORD pid, ULONG64 addre, DWORD * ret);
 
 

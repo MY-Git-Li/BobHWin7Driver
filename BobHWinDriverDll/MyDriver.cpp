@@ -1,187 +1,204 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "MyDriver.h"
+#include "releaseHelper.h"
+#include "resource1.h"
 #pragma comment (lib,"Advapi32.lib")
+#include "iostream"
 
-//°²×°Çı¶¯
-BOOL MyDriver::installDvr(CONST wchar_t* drvPath, CONST wchar_t* serviceName) {
+//åŠ è½½é©±åŠ¨
+BOOL LoadNTDriver(CONST WCHAR* lpszDriverName, CONST WCHAR* lpszDriverPath)
+{
+	TCHAR szDriverImagePath[256];
+	//å¾—åˆ°å®Œæ•´çš„é©±åŠ¨è·¯å¾„
+	GetFullPathName(lpszDriverPath, 256, szDriverImagePath, NULL);
 
-	// ´ò¿ª·şÎñ¿ØÖÆ¹ÜÀíÆ÷Êı¾İ¿â
-	SC_HANDLE schSCManager = OpenSCManager(
-		NULL,                   // Ä¿±ê¼ÆËã»úµÄÃû³Æ,NULL£ºÁ¬½Ó±¾µØ¼ÆËã»úÉÏµÄ·şÎñ¿ØÖÆ¹ÜÀíÆ÷
-		NULL,                   // ·şÎñ¿ØÖÆ¹ÜÀíÆ÷Êı¾İ¿âµÄÃû³Æ£¬NULL£º´ò¿ª SERVICES_ACTIVE_DATABASE Êı¾İ¿â
-		SC_MANAGER_ALL_ACCESS   // ËùÓĞÈ¨ÏŞ
-	);
-	if (schSCManager == NULL) {
-		CloseServiceHandle(schSCManager);
-		return FALSE;
+	//printf("szDriverImagePath %ls ! \n", szDriverImagePath);
+
+	BOOL bRet = FALSE;
+
+	SC_HANDLE hServiceMgr = NULL;//SCMç®¡ç†å™¨çš„å¥æŸ„
+	SC_HANDLE hServiceDDK = NULL;//NTé©±åŠ¨ç¨‹åºçš„æœåŠ¡å¥æŸ„
+
+								 //æ‰“å¼€æœåŠ¡æ§åˆ¶ç®¡ç†å™¨
+	hServiceMgr = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+
+	if (hServiceMgr == NULL)
+	{
+		//OpenSCManagerå¤±è´¥
+		//printf("OpenSCManager() Faild %d ! \n", GetLastError());
+		bRet = FALSE;
+		goto BeforeLeave;
+	}
+	else
+	{
+		////OpenSCManageræˆåŠŸ
+		//printf("OpenSCManager() ok ! \n");
 	}
 
-	// ´´½¨·şÎñ¶ÔÏó£¬Ìí¼ÓÖÁ·şÎñ¿ØÖÆ¹ÜÀíÆ÷Êı¾İ¿â
-	SC_HANDLE schService = CreateService(
-		schSCManager,               // ·şÎñ¿Ø¼ş¹ÜÀíÆ÷Êı¾İ¿âµÄ¾ä±ú
-		serviceName,                // Òª°²×°µÄ·şÎñµÄÃû³Æ
-		serviceName,                // ÓÃ»§½çÃæ³ÌĞòÓÃÀ´±êÊ¶·şÎñµÄÏÔÊ¾Ãû³Æ
-		SERVICE_ALL_ACCESS,         // ¶Ô·şÎñµÄ·ÃÎÊÈ¨ÏŞ£ºËùÓĞÈ«È¨ÏŞ
-		SERVICE_KERNEL_DRIVER,      // ·şÎñÀàĞÍ£ºÇı¶¯·şÎñ
-		SERVICE_DEMAND_START,       // ·şÎñÆô¶¯Ñ¡Ïî£º½ø³Ìµ÷ÓÃ StartService Ê±Æô¶¯
-		SERVICE_ERROR_IGNORE,       // Èç¹ûÎŞ·¨Æô¶¯£ººöÂÔ´íÎó¼ÌĞøÔËĞĞ
-		drvPath,                    // Çı¶¯ÎÄ¼ş¾ø¶ÔÂ·¾¶£¬Èç¹û°üº¬¿Õ¸ñĞèÒª¶à¼ÓË«ÒıºÅ
-		NULL,                       // ·şÎñËùÊôµÄ¸ºÔØ¶©¹º×é£º·şÎñ²»ÊôÓÚÄ³¸ö×é
-		NULL,                       // ½ÓÊÕ¶©¹º×éÎ¨Ò»±ê¼ÇÖµ£º²»½ÓÊÕ
-		NULL,                       // ·şÎñ¼ÓÔØË³ĞòÊı×é£º·şÎñÃ»ÓĞÒÀÀµÏî
-		NULL,                       // ÔËĞĞ·şÎñµÄÕË»§Ãû£ºÊ¹ÓÃ LocalSystem ÕË»§
-		NULL                        // LocalSystem ÕË»§ÃÜÂë
-	);
-	if (schService == NULL) {
-		CloseServiceHandle(schService);
-		CloseServiceHandle(schSCManager);
-		return FALSE;
-	}
+	//åˆ›å»ºé©±åŠ¨æ‰€å¯¹åº”çš„æœåŠ¡
+	hServiceDDK = CreateService(hServiceMgr,
+		lpszDriverName, //é©±åŠ¨ç¨‹åºçš„åœ¨æ³¨å†Œè¡¨ä¸­çš„åå­—Â  
+		lpszDriverName, // æ³¨å†Œè¡¨é©±åŠ¨ç¨‹åºçš„ DisplayName å€¼Â  
+		SERVICE_ALL_ACCESS, // åŠ è½½é©±åŠ¨ç¨‹åºçš„è®¿é—®æƒé™Â  
+		SERVICE_KERNEL_DRIVER,// è¡¨ç¤ºåŠ è½½çš„æœåŠ¡æ˜¯é©±åŠ¨ç¨‹åºÂ  
+		SERVICE_DEMAND_START, // æ³¨å†Œè¡¨é©±åŠ¨ç¨‹åºçš„ Start å€¼Â  
+		SERVICE_ERROR_IGNORE, // æ³¨å†Œè¡¨é©±åŠ¨ç¨‹åºçš„ ErrorControl å€¼Â  
+		szDriverImagePath, // æ³¨å†Œè¡¨é©±åŠ¨ç¨‹åºçš„ ImagePath å€¼Â  
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL);
 
-	CloseServiceHandle(schService);
-	CloseServiceHandle(schSCManager);
-	return TRUE;
-}
-
-// Æô¶¯·şÎñ
-BOOL MyDriver::startDvr(CONST wchar_t* serviceName) {
-
-	// ´ò¿ª·şÎñ¿ØÖÆ¹ÜÀíÆ÷Êı¾İ¿â
-	SC_HANDLE schSCManager = OpenSCManager(
-		NULL,                   // Ä¿±ê¼ÆËã»úµÄÃû³Æ,NULL£ºÁ¬½Ó±¾µØ¼ÆËã»úÉÏµÄ·şÎñ¿ØÖÆ¹ÜÀíÆ÷
-		NULL,                   // ·şÎñ¿ØÖÆ¹ÜÀíÆ÷Êı¾İ¿âµÄÃû³Æ£¬NULL£º´ò¿ª SERVICES_ACTIVE_DATABASE Êı¾İ¿â
-		SC_MANAGER_ALL_ACCESS   // ËùÓĞÈ¨ÏŞ
-	);
-	if (schSCManager == NULL) {
-		CloseServiceHandle(schSCManager);
-		return FALSE;
-	}
-
-	// ´ò¿ª·şÎñ
-	SC_HANDLE hs = OpenService(
-		schSCManager,           // ·şÎñ¿Ø¼ş¹ÜÀíÆ÷Êı¾İ¿âµÄ¾ä±ú
-		serviceName,            // Òª´ò¿ªµÄ·şÎñÃû
-		SERVICE_ALL_ACCESS      // ·şÎñ·ÃÎÊÈ¨ÏŞ£ºËùÓĞÈ¨ÏŞ
-	);
-	if (hs == NULL) {
-		CloseServiceHandle(hs);
-		CloseServiceHandle(schSCManager);
-		return FALSE;
-	}
-	if (StartService(hs, 0, 0) == 0) {
-		CloseServiceHandle(hs);
-		CloseServiceHandle(schSCManager);
-		return FALSE;
-	}
-
-
-	CloseServiceHandle(hs);
-	CloseServiceHandle(schSCManager);
-	return TRUE;
-}
-
-// Í£Ö¹·şÎñ
-BOOL MyDriver::stopDvr(CONST wchar_t* serviceName) {
-
-	// ´ò¿ª·şÎñ¿ØÖÆ¹ÜÀíÆ÷Êı¾İ¿â
-	SC_HANDLE schSCManager = OpenSCManager(
-		NULL,                   // Ä¿±ê¼ÆËã»úµÄÃû³Æ,NULL£ºÁ¬½Ó±¾µØ¼ÆËã»úÉÏµÄ·şÎñ¿ØÖÆ¹ÜÀíÆ÷
-		NULL,                   // ·şÎñ¿ØÖÆ¹ÜÀíÆ÷Êı¾İ¿âµÄÃû³Æ£¬NULL£º´ò¿ª SERVICES_ACTIVE_DATABASE Êı¾İ¿â
-		SC_MANAGER_ALL_ACCESS   // ËùÓĞÈ¨ÏŞ
-	);
-	if (schSCManager == NULL) {
-		CloseServiceHandle(schSCManager);
-		return FALSE;
-	}
-
-	// ´ò¿ª·şÎñ
-	SC_HANDLE hs = OpenService(
-		schSCManager,           // ·şÎñ¿Ø¼ş¹ÜÀíÆ÷Êı¾İ¿âµÄ¾ä±ú
-		serviceName,            // Òª´ò¿ªµÄ·şÎñÃû
-		SERVICE_ALL_ACCESS      // ·şÎñ·ÃÎÊÈ¨ÏŞ£ºËùÓĞÈ¨ÏŞ
-	);
-	if (hs == NULL) {
-		CloseServiceHandle(hs);
-		CloseServiceHandle(schSCManager);
-		return FALSE;
-	}
-
-	// Èç¹û·şÎñÕıÔÚÔËĞĞ
-	SERVICE_STATUS status;
-	if (QueryServiceStatus(hs, &status) == 0) {
-		CloseServiceHandle(hs);
-		CloseServiceHandle(schSCManager);
-		return FALSE;
-	}
-	if (status.dwCurrentState != SERVICE_STOPPED &&
-		status.dwCurrentState != SERVICE_STOP_PENDING
-		) {
-		// ·¢ËÍ¹Ø±Õ·şÎñÇëÇó
-		if (ControlService(
-			hs,                         // ·şÎñ¾ä±ú
-			SERVICE_CONTROL_STOP,       // ¿ØÖÆÂë£ºÍ¨Öª·şÎñÓ¦¸ÃÍ£Ö¹
-			&status                     // ½ÓÊÕ×îĞÂµÄ·şÎñ×´Ì¬ĞÅÏ¢
-		) == 0) {
-			CloseServiceHandle(hs);
-			CloseServiceHandle(schSCManager);
-			return FALSE;
+	DWORD dwRtn;
+	//åˆ¤æ–­æœåŠ¡æ˜¯å¦å¤±è´¥
+	if (hServiceDDK == NULL)
+	{
+		dwRtn = GetLastError();
+		if (dwRtn != ERROR_IO_PENDING && dwRtn != ERROR_SERVICE_EXISTS)
+		{
+			//ç”±äºå…¶ä»–åŸå› åˆ›å»ºæœåŠ¡å¤±è´¥
+			//printf("CrateService() Faild %d ! \n", dwRtn);
+			bRet = FALSE;
+			goto BeforeLeave;
 		}
-
-		// ÅĞ¶Ï³¬Ê±
-		INT timeOut = 0;
-		while (status.dwCurrentState != SERVICE_STOPPED) {
-			timeOut++;
-			QueryServiceStatus(hs, &status);
-			Sleep(50);
+		else
+		{
+			//æœåŠ¡åˆ›å»ºå¤±è´¥ï¼Œæ˜¯ç”±äºæœåŠ¡å·²ç»åˆ›ç«‹è¿‡
+			//printf("CrateService() Faild Service is ERROR_IO_PENDING or ERROR_SERVICE_EXISTS! \n");
 		}
-		if (timeOut > 80) {
-			CloseServiceHandle(hs);
-			CloseServiceHandle(schSCManager);
-			return FALSE;
+		hServiceDDK = OpenService(hServiceMgr, lpszDriverName, SERVICE_ALL_ACCESS);
+		if (hServiceDDK == NULL)
+		{
+			//å¦‚æœæ‰“å¼€æœåŠ¡ä¹Ÿå¤±è´¥ï¼Œåˆ™æ„å‘³é”™è¯¯
+			dwRtn = GetLastError();
+			//printf("OpenService() Faild %d ! \n", dwRtn);
+			bRet = FALSE;
+			goto BeforeLeave;
+		}
+		else
+		{
+			//printf("OpenService() ok ! \n");
 		}
 	}
+	else
+	{
+		//printf("CrateService() ok ! \n");
+	}
 
-	CloseServiceHandle(hs);
-	CloseServiceHandle(schSCManager);
-	return TRUE;
+	//å¼€å¯æ­¤é¡¹æœåŠ¡
+	bRet = StartService(hServiceDDK, NULL, NULL);
+	if (!bRet)
+	{
+		DWORD dwRtn = GetLastError();
+		if (dwRtn != ERROR_IO_PENDING && dwRtn != ERROR_SERVICE_ALREADY_RUNNING)
+		{
+			//printf("StartService() Faild %d ! \n", dwRtn);
+			bRet = FALSE;
+			goto BeforeLeave;
+		}
+		else
+		{
+			if (dwRtn == ERROR_IO_PENDING)
+			{
+				//è®¾å¤‡è¢«æŒ‚ä½
+				//printf("StartService() Faild ERROR_IO_PENDING ! \n");
+				bRet = FALSE;
+				goto BeforeLeave;
+			}
+			else
+			{
+				//æœåŠ¡å·²ç»å¼€å¯
+				//printf("StartService() Faild ERROR_SERVICE_ALREADY_RUNNING ! \n");
+				bRet = TRUE;
+				goto BeforeLeave;
+
+			}
+		}
+	}
+	bRet = TRUE;
+	//ç¦»å¼€å‰å…³é—­å¥æŸ„
+BeforeLeave:
+	if (hServiceDDK)
+	{
+		CloseServiceHandle(hServiceDDK);
+	}
+	if (hServiceMgr)
+	{
+		CloseServiceHandle(hServiceMgr);
+	}
+	return bRet;
 }
 
-// Ğ¶ÔØÇı¶¯
-BOOL MyDriver::unloadDvr(CONST wchar_t* serviceName) {
 
-	// ´ò¿ª·şÎñ¿ØÖÆ¹ÜÀíÆ÷Êı¾İ¿â
-	SC_HANDLE schSCManager = OpenSCManager(
-		NULL,                   // Ä¿±ê¼ÆËã»úµÄÃû³Æ,NULL£ºÁ¬½Ó±¾µØ¼ÆËã»úÉÏµÄ·şÎñ¿ØÖÆ¹ÜÀíÆ÷
-		NULL,                   // ·şÎñ¿ØÖÆ¹ÜÀíÆ÷Êı¾İ¿âµÄÃû³Æ£¬NULL£º´ò¿ª SERVICES_ACTIVE_DATABASE Êı¾İ¿â
-		SC_MANAGER_ALL_ACCESS   // ËùÓĞÈ¨ÏŞ
-	);
-	if (schSCManager == NULL) {
-		CloseServiceHandle(schSCManager);
-		return FALSE;
+//å¸è½½é©±åŠ¨ç¨‹åºÂ  
+BOOL UnloadNTDriver(CONST WCHAR* szSvrName)
+{
+	BOOL bRet = FALSE;
+	SC_HANDLE hServiceMgr = NULL;//SCMç®¡ç†å™¨çš„å¥æŸ„
+	SC_HANDLE hServiceDDK = NULL;//NTé©±åŠ¨ç¨‹åºçš„æœåŠ¡å¥æŸ„
+	SERVICE_STATUS SvrSta;
+	//æ‰“å¼€SCMç®¡ç†å™¨
+	hServiceMgr = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	if (hServiceMgr == NULL)
+	{
+		//å¸¦å¼€SCMç®¡ç†å™¨å¤±è´¥
+		//printf("OpenSCManager() Faild %d ! \n", GetLastError());
+		bRet = FALSE;
+		goto BeforeLeave;
 	}
-
-	// ´ò¿ª·şÎñ
-	SC_HANDLE hs = OpenService(
-		schSCManager,           // ·şÎñ¿Ø¼ş¹ÜÀíÆ÷Êı¾İ¿âµÄ¾ä±ú
-		serviceName,            // Òª´ò¿ªµÄ·şÎñÃû
-		SERVICE_ALL_ACCESS      // ·şÎñ·ÃÎÊÈ¨ÏŞ£ºËùÓĞÈ¨ÏŞ
-	);
-	if (hs == NULL) {
-		CloseServiceHandle(hs);
-		CloseServiceHandle(schSCManager);
-		return FALSE;
+	else
+	{
+		//å¸¦å¼€SCMç®¡ç†å™¨å¤±è´¥æˆåŠŸ
+		//printf("OpenSCManager() ok ! \n");
 	}
+	//æ‰“å¼€é©±åŠ¨æ‰€å¯¹åº”çš„æœåŠ¡
+	hServiceDDK = OpenService(hServiceMgr, szSvrName, SERVICE_ALL_ACCESS);
 
-	// É¾³ı·şÎñ
-	if (DeleteService(hs) == 0) {
-		CloseServiceHandle(hs);
-		CloseServiceHandle(schSCManager);
-		return FALSE;
+	if (hServiceDDK == NULL)
+	{
+		//æ‰“å¼€é©±åŠ¨æ‰€å¯¹åº”çš„æœåŠ¡å¤±è´¥
+		//printf("OpenService() Faild %d ! \n", GetLastError());
+		bRet = FALSE;
+		goto BeforeLeave;
 	}
-
-	CloseServiceHandle(hs);
-	CloseServiceHandle(schSCManager);
-	return TRUE;
+	else
+	{
+		//printf("OpenService() ok ! \n");
+	}
+	//åœæ­¢é©±åŠ¨ç¨‹åºï¼Œå¦‚æœåœæ­¢å¤±è´¥ï¼Œåªæœ‰é‡æ–°å¯åŠ¨æ‰èƒ½ï¼Œå†åŠ¨æ€åŠ è½½ã€‚Â  
+	if (!ControlService(hServiceDDK, SERVICE_CONTROL_STOP, &SvrSta))
+	{
+		//printf("ControlService() Faild %d !\n", GetLastError());
+	}
+	else
+	{
+		//æ‰“å¼€é©±åŠ¨æ‰€å¯¹åº”çš„å¤±è´¥
+		//printf("ControlService() ok !\n");
+	}
+	//åŠ¨æ€å¸è½½é©±åŠ¨ç¨‹åºã€‚Â  
+	if (!DeleteService(hServiceDDK))
+	{
+		//å¸è½½å¤±è´¥
+		//printf("DeleteSrevice() Faild %d !\n", GetLastError());
+	}
+	else
+	{
+		//å¸è½½æˆåŠŸ
+		//printf("DelServer:eleteSrevice() ok !\n");
+	}
+	bRet = TRUE;
+BeforeLeave:
+	//ç¦»å¼€å‰å…³é—­æ‰“å¼€çš„å¥æŸ„
+	if (hServiceDDK)
+	{
+		CloseServiceHandle(hServiceDDK);
+	}
+	if (hServiceMgr)
+	{
+		CloseServiceHandle(hServiceMgr);
+	}
+	return bRet;
 }
 
 
@@ -193,12 +210,22 @@ MyDriver::MyDriver()
 
 MyDriver::~MyDriver()
 {
+
 	CloseHandle(hdevice);
 }
 
 bool MyDriver::Inint()
 {
-	//°²×°Çı¶¯µÈ´úÂë
+	//å®‰è£…é©±åŠ¨ç­‰ä»£ç 
+
+	UnloadNTDriver(L"BobHWin7Read");
+
+	CReleaseDLL releasehelper;
+	bool blRes;
+	blRes = releasehelper.FreeResFile(IDR_SYS1, "SYS", "BobHWin7Driver.sys");
+
+	LoadNTDriver(L"BobHWin7Read",L"BobHWin7Driver.sys");
+	
 
 	hdevice = CreateFile(L"\\\\.\\BobHWin7ReadLink", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hdevice == INVALID_HANDLE_VALUE)
@@ -206,6 +233,18 @@ bool MyDriver::Inint()
 		isInint = false;
 		return false;
 	}
+
+	char cons[MAX_DLL_PATH + 7] = "\\??\\";
+
+	char strFullPath[MAX_DLL_PATH] = { 0 };
+	sprintf_s(strFullPath, "%s\\%s", releasehelper.m_filePath, "BobHWin7Driver.sys");
+
+	strcat_s(cons, strFullPath);
+
+	DWORD wow;
+	DeviceIoControl(hdevice, BOBH_DELETEFILE, cons, sizeof(cons), &cons, sizeof(cons), &wow, NULL);
+
+	
 	isInint = true;
 	return true;
 }

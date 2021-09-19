@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "MyDriver.h"
 
-
+#include "iostream"
 MyDriver* myDriver = nullptr;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -19,6 +19,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     case DLL_PROCESS_DETACH:
         break;
     }
+   
     return TRUE;
 }
 

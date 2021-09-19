@@ -27,7 +27,7 @@ public:
 	~MyDriver();
 	bool isInint;
 	bool Inint();
-
+	
 	template <typename T>
 	bool Read(DWORD pid, ULONG64 address, T* ret);
 
@@ -35,10 +35,7 @@ public:
 	bool Write(DWORD pid, ULONG64 address, T data);
 private:
 	HANDLE hdevice;
-	BOOL installDvr(CONST wchar_t* drvPath, CONST wchar_t* serviceName);
-	BOOL startDvr(CONST wchar_t* serviceName);
-	BOOL stopDvr(CONST wchar_t* serviceName);
-	BOOL unloadDvr(CONST wchar_t* serviceName);
+	
 };
 
 
