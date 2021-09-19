@@ -134,7 +134,7 @@ extern "C" __declspec(dllexport) void ForceDeleteFile(const char* path)
 {
 	if (myDriver->isInint)
 	{
-		myDriver->DeleteFile(path);
+		myDriver->ForceDeleteFile(path);
 	}
 }
 

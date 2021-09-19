@@ -1,6 +1,6 @@
 #include <iostream>
 #include "windows.h"
-
+#pragma comment (lib,"Advapi32.lib")
 #pragma comment(lib, "BobHWinDriverDll.lib")                                   
 extern "C" __declspec(dllimport) bool InitDriver();
 
@@ -40,15 +40,48 @@ char* w2c(wchar_t* a)
 	WideCharToMultiByte(CP_ACP, 0, a, -1, pszMultiByte, iSize, NULL, NULL);
 	return pszMultiByte;
 }
+bool AdjustPrivileges() {
+	HANDLE hToken = NULL;
+	TOKEN_PRIVILEGES tp;
+	TOKEN_PRIVILEGES oldtp;
+	DWORD dwSize = sizeof(TOKEN_PRIVILEGES);
+	LUID luid;
 
+	OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &hToken);
+
+	if (!LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid)) {
+		CloseHandle(hToken);
+		OutputDebugString(TEXT("提升权限失败,LookupPrivilegeValue"));
+		return false;
+	}
+	ZeroMemory(&tp, sizeof(tp));
+	tp.PrivilegeCount = 1;
+	tp.Privileges[0].Luid = luid;
+	tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	/* Adjust Token Privileges */
+	if (!AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), &oldtp, &dwSize)) {
+		CloseHandle(hToken);
+		OutputDebugString(TEXT("提升权限失败 AdjustTokenPrivileges"));
+		return false;
+	}
+	// close handles
+	CloseHandle(hToken);
+	return true;
+}
 int main()
 {
+	if (AdjustPrivileges()==false)
+	{
+		return 0;
+	}
+
 	if (!InitDriver())
 	{
 		printf("打开设备失败\n");
 		system("pause");
 		return 0;
 	}
+	
 	printf("打开设备成功\n");
 
 	system("pause");

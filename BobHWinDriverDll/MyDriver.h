@@ -39,7 +39,7 @@ public:
 	template <typename T>
 	bool Write(DWORD pid, ULONG64 address, T data);
 
-	void DeleteFile(const char* path);
+	void ForceDeleteFile(const char* path);
 
 	DWORD GetPidByProcessName(const char* name);
 

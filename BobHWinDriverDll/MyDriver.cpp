@@ -201,6 +201,18 @@ BeforeLeave:
 	return bRet;
 }
 
+wchar_t* c2w(char* a)
+{
+	int iSize;
+	wchar_t* pwszUnicode;
+
+	//返回接受字符串所需缓冲区的大小，已经包含字符结尾符'\0'
+	iSize = MultiByteToWideChar(CP_ACP, 0, a, -1, NULL, 0); //iSize =wcslen(pwsUnicode)+1=6
+	pwszUnicode = (wchar_t*)malloc(iSize * sizeof(wchar_t)); //不需要 pwszUnicode = (wchar_t *)malloc((iSize+1)*sizeof(wchar_t))
+	MultiByteToWideChar(CP_ACP, 0, a, -1, pwszUnicode, iSize);
+	return pwszUnicode;
+}
+
 
 MyDriver::MyDriver()
 {
@@ -216,6 +228,7 @@ MyDriver::~MyDriver()
 
 bool MyDriver::Inint()
 {
+	
 	//安装驱动等代码
 
 	UnloadNTDriver(L"BobHWin7Read");
@@ -226,14 +239,6 @@ bool MyDriver::Inint()
 
 	LoadNTDriver(L"BobHWin7Read", L"BobHWin7Driver.sys");
 
-
-	hdevice = CreateFile(L"\\\\.\\BobHWin7ReadLink", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hdevice == INVALID_HANDLE_VALUE)
-	{
-		isInint = false;
-		return false;
-	}
-
 	char cons[MAX_DLL_PATH + 7] = "\\??\\";
 
 	char strFullPath[MAX_DLL_PATH] = { 0 };
@@ -241,15 +246,26 @@ bool MyDriver::Inint()
 
 	strcat_s(cons, strFullPath);
 
+
+	hdevice = CreateFile(L"\\\\.\\BobHWin7ReadLink", GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hdevice == INVALID_HANDLE_VALUE)
+	{
+		remove(strFullPath);
+		
+		isInint = false;
+		return false;
+	}
+
+
 	DWORD wow;
 	DeviceIoControl(hdevice, BOBH_DELETEFILE, cons, sizeof(cons), &cons, sizeof(cons), &wow, NULL);
 
-	DeleteFile(strFullPath);
+	
 	isInint = true;
 	return true;
 }
 
-void MyDriver::DeleteFile(const char* path)
+void MyDriver::ForceDeleteFile(const char* path)
 {
 	char cons[MAX_DLL_PATH + 7] = "\\??\\";
 
