@@ -15,6 +15,8 @@ extern "C" __declspec(dllexport) wchar_t* c2w(char* a);
 
 extern "C" __declspec(dllexport) bool InitDriver();
 
+extern "C" __declspec(dllexport) bool UnloadDriver();
+
 extern "C" __declspec(dllexport) void ReadMemoryDWORD(DWORD pid, ULONG64 addre, DWORD * ret);
 
 
@@ -50,6 +52,8 @@ extern "C" __declspec(dllexport) void ForceDeleteFile(const char* path);
 extern "C" __declspec(dllexport) DWORD GetPidByProcessName(const char* name);
 
 extern "C" __declspec(dllexport) void ProtectProcess(DWORD pid);
+
+extern "C" __declspec(dllexport) void HideProcess(DWORD pid);
 
 extern "C" __declspec(dllexport) void StopProtectProcess();
 

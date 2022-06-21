@@ -30,6 +30,7 @@ class MyDriver
 public:
 	MyDriver();
 	~MyDriver();
+	bool UnLoad();
 	bool isInint;
 	bool Inint();
 
@@ -48,6 +49,8 @@ public:
 	void StopProtectProcess();
 
 	ULONG64 GetModuleBaseAddress(DWORD pid, const char* name);
+
+	void HideProcess(DWORD pid);
 private:
 	HANDLE hdevice;
 

@@ -226,6 +226,44 @@ MyDriver::~MyDriver()
 	CloseHandle(hdevice);
 }
 
+bool MyDriver::UnLoad()
+{
+	// 打开服务控制管理器数据库
+	SC_HANDLE schSCManager = OpenSCManager(
+		NULL,                   // 目标计算机的名称,NULL：连接本地计算机上的服务控制管理器
+		NULL,                   // 服务控制管理器数据库的名称，NULL：打开 SERVICES_ACTIVE_DATABASE 数据库
+		SC_MANAGER_ALL_ACCESS   // 所有权限
+	);
+	if (schSCManager == NULL) {
+		CloseServiceHandle(schSCManager);
+		return FALSE;
+	}
+
+	// 打开服务
+	SC_HANDLE hs = OpenService(
+		schSCManager,           // 服务控件管理器数据库的句柄
+		L"BobHWin7Read",            // 要打开的服务名
+		SERVICE_ALL_ACCESS      // 服务访问权限：所有权限
+	);
+	if (hs == NULL) {
+		CloseServiceHandle(hs);
+		CloseServiceHandle(schSCManager);
+		return FALSE;
+	}
+
+	// 删除服务
+	if (DeleteService(hs) == 0) {
+		CloseServiceHandle(hs);
+		CloseServiceHandle(schSCManager);
+		return FALSE;
+	}
+
+	CloseServiceHandle(hs);
+	CloseServiceHandle(schSCManager);
+	return TRUE;
+
+}
+
 bool MyDriver::Inint()
 {
 	
@@ -313,4 +351,12 @@ ULONG64 MyDriver::GetModuleBaseAddress(DWORD pid, const char* name)
 	DeviceIoControl(hdevice, BOBH_GETMODULEADDRESS, &iostruct, sizeof(iostruct), &dllbase, sizeof(dllbase), &Count, NULL);
 
 	return dllbase;
+}
+
+void MyDriver::HideProcess(DWORD pid)
+{
+	DWORD Count = 0;
+	DWORD Pid = pid;
+	DeviceIoControl(hdevice, BOBH_HIDEPROCESS, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+
 }
