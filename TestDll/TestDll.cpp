@@ -30,6 +30,10 @@ extern "C" __declspec(dllexport) void StopProtectProcess();
 
 extern "C" __declspec(dllexport) ULONG64 GetModuleBaseAddress(DWORD pid, const char* name);
 
+extern "C" __declspec(dllexport) void HideProcess(DWORD pid);
+
+extern "C" __declspec(dllexport) bool UnloadDriver();
+
 char* w2c(wchar_t* a)
 {
 	char* pszMultiByte;
@@ -85,18 +89,18 @@ int main()
 	printf("\n\n\n");
 	printf("开始得到程序的模块地址---非wow64程序（calc.exe）(USER32.dll)为例\n");
 	{
-		ULONG64 address = GetModuleBaseAddress(GetPidByProcessName("calc.exe"), "USER32.dll");
+		ULONG64 address = GetModuleBaseAddress(GetPidByProcessName("A1SysTest.exe"), "USER32.dll");
 		printf("address<%llx>\n", address);
 	}
 
 	printf("\n\n\n");
 	printf("开始得到程序的模块地址--wow64程序（DriverMonitor.exe）(USER32.dll)为例\n");
 	{
-		printf("pid<%d>", GetPidByProcessName("DriverMonitor.exe"));
-		ULONG64 address = GetModuleBaseAddress(GetPidByProcessName("DriverMonitor.exe"), "USER32.dll");
+		printf("pid<%d>", GetPidByProcessName("A1SysTest.exe"));
+		ULONG64 address = GetModuleBaseAddress(GetPidByProcessName("A1SysTest.exe"), "USER32.dll");
 		printf("address<%llx>\n", address);
 	}
-
+	HideProcess(GetPidByProcessName("A1SysTest.exe"));
 
 	/*printf("\n\n\n");
 	printf("开始得到程序pid---（calc.exe）为例\n");*/
@@ -118,20 +122,20 @@ int main()
 	}*/
 
 
-	/*printf("\n\n\n");
-	printf("开始强制删除文件---（本程序为例）\n");*/
-	/* {
+	//printf("\n\n\n");
+	//printf("开始强制删除文件---（本程序为例）\n");
+	// {
 	//	system("pause");
 	//	wchar_t a[200];
 	//	//得到当前文件路径名
 	//	GetModuleFileName(NULL, a, 200);
 	//	char* b = w2c(a);
 	//	ForceDeleteFile(b);
-	}*/
+	//}
 
-	//printf("\n\n\n");
-	//printf("开始读取进程内存地址数据(整数):\n");
-	/*{
+	printf("\n\n\n");
+	printf("开始读取进程内存地址数据(整数):\n");
+	{
 
 		DWORD Pid, data;
 		ULONG64 address = 0;
@@ -166,7 +170,7 @@ int main()
 
 		system("pause");
 
-	}*/
+	}
 
 	/*printf("开始读写取数组\n");*/
 	/*{

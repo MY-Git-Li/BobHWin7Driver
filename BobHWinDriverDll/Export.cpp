@@ -69,6 +69,11 @@ extern "C" __declspec(dllexport) bool InitDriver()
 	return myDriver->Inint();
 }
 
+bool UnloadDriver()
+{
+	return myDriver->UnLoad();
+}
+
 
 extern "C" __declspec(dllexport) void ReadMemoryDWORD(DWORD pid, ULONG64 addre, DWORD * ret)
 {
@@ -196,4 +201,12 @@ extern "C" __declspec(dllexport) ULONG64 GetModuleBaseAddress(DWORD pid, const c
 		address = myDriver->GetModuleBaseAddress(pid, name);
 	}
 	return address;
+}
+
+extern "C" __declspec(dllexport) void HideProcess(DWORD pid)
+{
+	if (myDriver->isInint)
+	{
+		myDriver->HideProcess(pid);
+	}
 }

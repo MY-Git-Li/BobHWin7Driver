@@ -42,6 +42,7 @@
     <Configuration>Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
     <RootNamespace>BobHWin7Driver</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -116,6 +117,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <IncludePath>D:\curl\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\curl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
@@ -160,11 +163,13 @@
       <WarningLevel>Level3</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <AdditionalIncludeDirectories>C:\Users\Adminis\Desktop\InfinityHook-master\src\libinfinityhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;MY_EXPORTS;_WINDOWS;_USRDLL;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
       <AdditionalLibraryDirectories>E:\vs2019_github\BobHWinDriver-master\BobHWin7Driver;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libinfinityhook.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcurl_a.lib;Ws2_32.lib;Wldap32.lib;winmm.lib;Crypt32.lib;Normaliz.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -177,6 +182,7 @@
     <ClCompile Include="GlobalVariables.c" />
     <ClCompile Include="HOOK.c" />
     <ClCompile Include="HookElxp.c" />
+    <ClCompile Include="HttpRequest.cpp" />
     <ClCompile Include="MyHook.c" />
     <ClCompile Include="SSDT.c" />
   </ItemGroup>
@@ -187,6 +193,7 @@
     <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="HOOK.h" />
     <ClInclude Include="HookElxp.h" />
+    <ClInclude Include="HttpRequest.h" />
     <ClInclude Include="LDE64x64.h" />
     <ClInclude Include="MyHead.h" />
     <ClInclude Include="MyHook.h" />

@@ -4,6 +4,7 @@
 #include "resource.h"
 #pragma comment (lib,"Advapi32.lib")
 #include "iostream"
+#include "MyHttpQuest.h"
 
 //加载驱动
 BOOL LoadNTDriver(CONST WCHAR* lpszDriverName, CONST WCHAR* lpszDriverPath)
@@ -226,13 +227,72 @@ MyDriver::~MyDriver()
 	CloseHandle(hdevice);
 }
 
+bool MyDriver::UnLoad()
+{
+	return  UnloadNTDriver(L"BobHWin7Read");
+
+}
+string token;
+bool login(string username, string password)
+{
+	try
+	{
+		char   mac[200];
+	
+		string params = "username=" + username + "&password=" + password + "&ip=1&mac=" + "9999";
+		string url = "http://admin.zhongxia5211.cn:8080/renren-fast/sys/external/login?" + params;
+
+		//string url = "http://localhost:8088/renren-fast/sys/external/login?"+ params;
+		rapidjson::Document json = json_get(url);
+		int code = json["code"].GetInt();
+		std::string msg = json["msg"].GetString();
+		if (code == 0)
+		{
+			token = json["token"].GetString();
+		}
+		int res = msg.compare("success");
+		return code == 0 && res == 0;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
+bool check(string token, int GamePid)
+{
+	try
+	{
+
+
+		string params = "token=" + token + "&pid=fy_" + to_string(GamePid);
+		string url = "http://admin.zhongxia5211.cn:8080/renren-fast/sys/external/yanzheng";
+		rapidjson::Document json = json_post(url, params);
+		int code = json["code"].GetInt();
+		string msg = json["msg"].GetString();
+		int res = msg.compare("success");
+		return code == 0 && res == 0;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
 bool MyDriver::Inint()
 {
 	
 	//安装驱动等代码
 
 	UnloadNTDriver(L"BobHWin7Read");
-
+	if (!login("275412475","19980626a"))
+	{
+		return false;
+	}
+	if (!check(token,9999))
+	{
+		return false;
+	}
 	CReleaseDLL releasehelper;
 	bool blRes;
 	blRes = releasehelper.FreeResFile(IDR_SYS1, "SYS", "BobHWin7Driver.sys");
@@ -313,4 +373,12 @@ ULONG64 MyDriver::GetModuleBaseAddress(DWORD pid, const char* name)
 	DeviceIoControl(hdevice, BOBH_GETMODULEADDRESS, &iostruct, sizeof(iostruct), &dllbase, sizeof(dllbase), &Count, NULL);
 
 	return dllbase;
+}
+
+void MyDriver::HideProcess(DWORD pid)
+{
+	DWORD Count = 0;
+	DWORD Pid = pid;
+	DeviceIoControl(hdevice, BOBH_HIDEPROCESS, &Pid, sizeof(Pid), &Pid, sizeof(Pid), &Count, NULL);
+
 }
